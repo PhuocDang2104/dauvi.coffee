@@ -15,9 +15,6 @@ export function AdvisorCallout() {
         <div>
           <p className="eyebrow !text-honey-500">Coffee Advisor</p>
           <h2 className="section-heading mt-4">Không cần biết hết thuật ngữ để chọn đúng cà phê</h2>
-          <p className="mt-6 max-w-xl text-lg leading-8 text-sand-200">
-            Trả lời vài câu về vị, cách pha và ngân sách. Coffee Advisor sẽ chọn ba sản phẩm phù hợp từ bộ sưu tập hiện có.
-          </p>
           <Link href="/advisor" className="button-primary mt-8 !bg-mist-50 !text-forest-950">
             Bắt đầu tư vấn <ArrowRight aria-hidden="true" size={17} />
           </Link>
@@ -25,7 +22,7 @@ export function AdvisorCallout() {
         <div className="rounded-[1.8rem] border border-white/15 bg-white/5 p-5 backdrop-blur md:p-8">
           <div className="flex items-center gap-3 border-b border-white/15 pb-5">
             <span className="flex size-11 items-center justify-center rounded-full bg-honey-500 text-forest-950"><MessageCircleMore aria-hidden="true" size={20} /></span>
-            <div><p className="font-bold">DẤU VỊ Coffee Advisor</p><p className="text-xs text-sand-200">Rule-based · 6 bước · khoảng 1 phút</p></div>
+            <p className="font-bold">DẤU VỊ Coffee Advisor</p>
           </div>
           <p className="mt-6 font-display text-2xl font-semibold">Bạn đang tìm một tách cà phê như thế nào?</p>
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
@@ -50,11 +47,10 @@ export function HonestSustainability() {
       <div className="max-w-3xl">
         <p className="eyebrow">Honest sustainability</p>
         <h2 className="section-heading mt-4">Minh bạch trước khi gắn nhãn</h2>
-        <p className="mt-5 text-lg leading-8 text-ink-700">Mỗi thông tin được đặt cạnh cấp bằng chứng, để dữ liệu tham khảo không trở thành lời hứa môi trường của sản phẩm.</p>
       </div>
       <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {levels.map(({ icon: Icon, label, copy, tone }) => (
-          <article key={label} className="rounded-[1.35rem] border border-basalt-900/10 bg-white/65 p-5">
+          <article key={label} className="rounded-[1.35rem] border border-basalt-900/10 bg-white/70 p-5 shadow-[0_12px_40px_rgba(24,26,24,.05)] transition duration-300 hover:-translate-y-1 hover:shadow-soft">
             <span className={`flex size-10 items-center justify-center rounded-full ${tone}`}><Icon aria-hidden="true" size={18} /></span>
             <h3 className="mt-5 font-display text-2xl font-semibold tracking-[-0.03em]">{label}</h3>
             <p className="mt-3 text-sm leading-6 text-ink-700">{copy}</p>
@@ -84,7 +80,7 @@ export function BrewAtHome() {
         </div>
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {pathways.map((pathway, index) => (
-            <article key={pathway.title} className="rounded-[1.5rem] border border-basalt-900/10 bg-mist-50 p-6 md:p-7">
+            <article key={pathway.title} className="rounded-[1.5rem] border border-basalt-900/10 bg-mist-50 p-6 shadow-[0_12px_40px_rgba(24,26,24,.05)] transition duration-300 hover:-translate-y-1 hover:shadow-soft md:p-7">
               <div className="flex items-center justify-between"><span className="flex size-11 items-center justify-center rounded-full bg-forest-950 text-white"><Coffee aria-hidden="true" size={20} /></span><span className="lot-code text-xs text-ink-500">0{index + 1}</span></div>
               <h3 className="card-heading mt-6">{pathway.title}</h3>
               <dl className="mt-5 grid grid-cols-2 gap-3 text-xs">

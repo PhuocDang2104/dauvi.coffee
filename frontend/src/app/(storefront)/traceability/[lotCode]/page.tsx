@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, CalendarDays, ChevronRight, MapPin } from "lucide-react";
+import { ArrowLeft, ArrowRight, ChevronRight, MapPin } from "lucide-react";
 import { getRepositories } from "@/lib/data-source";
 import { OriginMap } from "@/features/traceability/components/origin-map";
 import { ProcessTimeline } from "@/features/traceability/components/process-timeline";
@@ -60,7 +60,7 @@ export default async function LotDetailPage({ params }: LotPageProps) {
             <p className="mt-5 text-xl font-bold text-forest-950">{product.displayName}</p>
             <p className="mt-6 max-w-2xl rounded-2xl border border-clay-500/25 bg-white/60 p-4 text-sm leading-6 text-roast-700"><strong>Demo Data:</strong> {lot.demoDisclosure}</p>
           </div>
-          <div className="flex justify-center"><ProductPack product={product} className="w-[55%] max-w-[13rem]" /></div>
+          <div className="flex justify-center"><ProductPack product={product} className="w-full max-w-[28rem]" priority /></div>
         </div>
       </header>
 
@@ -80,9 +80,9 @@ export default async function LotDetailPage({ params }: LotPageProps) {
         </div>
       </section>
 
-      <section className="section-space border-y border-basalt-900/10 bg-paper-100"><div className="shell"><div className="max-w-3xl"><p className="eyebrow">Six-stage journey</p><h2 className="section-heading mt-4">Từ vùng trồng đến đóng gói</h2><p className="mt-5 text-ink-700"><CalendarDays aria-hidden="true" className="mr-2 inline" size={16} />Các ngày và đơn vị trong timeline hiện là dữ liệu mô phỏng.</p></div><div className="mt-10"><ProcessTimeline events={lot.timeline} /></div></div></section>
+      <section className="section-space border-y border-basalt-900/10 bg-paper-100"><div className="shell"><div className="max-w-3xl"><p className="eyebrow">Six-stage journey</p><h2 className="section-heading mt-4">Từ vùng trồng đến đóng gói</h2></div><div className="mt-10"><ProcessTimeline events={lot.timeline} /></div></div></section>
 
-      <section className="section-space shell"><div className="max-w-3xl"><p className="eyebrow">Evidence register</p><h2 className="section-heading mt-4">Thuộc tính, nguồn và mức bằng chứng</h2><p className="mt-5 text-ink-700">Không có dữ liệu mô phỏng nào được trình bày như hồ sơ đã xác minh độc lập.</p></div><div className="mt-10"><TransparencyTable evidence={lot.evidence} /></div></section>
+      <section className="section-space shell"><div className="max-w-3xl"><p className="eyebrow">Evidence register</p><h2 className="section-heading mt-4">Thuộc tính, nguồn và mức bằng chứng</h2></div><div className="mt-10"><TransparencyTable evidence={lot.evidence} /></div></section>
 
       <section className="border-t border-basalt-900/10 bg-forest-950 py-14 text-white"><div className="shell flex flex-col justify-between gap-8 md:flex-row md:items-center"><div><p className="eyebrow !text-honey-500">Từ passport về tách cà phê</p><h2 className="mt-3 font-display text-3xl font-semibold tracking-[-0.035em]">{product.displayName}</h2></div><div className="flex flex-wrap gap-3"><Link href={`/shop/${product.slug}`} className="button-primary !bg-white !text-forest-950">Xem sản phẩm <ArrowRight aria-hidden="true" size={17} /></Link><QuickAddButton product={product} className="button-secondary !border-white/30 !text-white" /></div></div></section>
       <div className="shell py-8"><Link href="/traceability" className="flex min-h-11 items-center gap-2 text-sm font-bold text-forest-950"><ArrowLeft aria-hidden="true" size={16} /> Quay lại tra cứu</Link></div>

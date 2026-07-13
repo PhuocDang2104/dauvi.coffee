@@ -20,7 +20,7 @@ export function ProductQuickView({ product }: { product: Product }) {
         <Dialog.Content className="fixed left-1/2 top-1/2 z-[71] max-h-[90vh] w-[calc(100%-2rem)] max-w-3xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[1.7rem] bg-mist-50 p-5 shadow-2xl md:p-8">
           <Dialog.Close className="absolute right-4 top-4 z-10 flex size-11 items-center justify-center rounded-full border border-basalt-900/10 bg-white" aria-label="Đóng xem nhanh"><X aria-hidden="true" size={19} /></Dialog.Close>
           <div className="grid gap-8 md:grid-cols-[.78fr_1.22fr] md:items-center">
-            <div className="topo-surface flex min-h-[22rem] items-center justify-center rounded-[1.4rem] bg-paper-100 p-8"><ProductPack product={product} className="w-[62%]" /></div>
+            <div className="topo-surface flex min-h-[22rem] items-center justify-center rounded-[1.4rem] bg-paper-100 p-2"><ProductPack product={product} className="w-full" /></div>
             <div>
               <p className="eyebrow">{product.regionLabel} · {product.process}</p>
               <Dialog.Title className="mt-3 font-display text-4xl font-semibold leading-tight tracking-[-0.045em]">{product.displayName}</Dialog.Title>

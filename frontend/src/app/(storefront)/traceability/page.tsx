@@ -33,17 +33,16 @@ export default async function TraceabilityPage() {
           <div>
             <p className="eyebrow">Lot-level traceability</p>
             <h1 className="display-heading mt-5">Mỗi mã lô là một hành trình</h1>
-            <p className="mt-6 max-w-xl text-lg leading-8 text-ink-700">Nhập mã trên nhãn để xem vùng nguyên liệu, sơ chế, rang, đóng gói và mức độ xác minh của dữ liệu.</p>
           </div>
           <LotLookupForm demoCodes={demoCodes} />
         </div>
       </section>
 
       <section className="section-space shell">
-        <div className="max-w-3xl"><p className="eyebrow">Evidence levels</p><h2 className="section-heading mt-4">Đọc dữ liệu cùng mức bằng chứng</h2><p className="mt-5 text-lg leading-8 text-ink-700">Một nhãn rõ ràng giúp phân biệt thông tin đã xác minh, thông tin khai báo, kiến thức tham khảo và dữ liệu trình diễn.</p></div>
+        <div className="max-w-3xl"><p className="eyebrow">Evidence levels</p><h2 className="section-heading mt-4">Đọc dữ liệu cùng mức bằng chứng</h2></div>
         <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {evidenceLevels.map(({ level, icon: Icon, title, copy }) => (
-            <article key={level} className="rounded-[1.35rem] border border-basalt-900/10 bg-white/65 p-5">
+            <article key={level} className="rounded-[1.35rem] border border-basalt-900/10 bg-white/70 p-5 shadow-[0_12px_40px_rgba(24,26,24,.06)] transition duration-300 hover:-translate-y-1 hover:shadow-soft">
               <div className="flex items-center justify-between gap-3"><span className="flex size-10 items-center justify-center rounded-full bg-paper-100 text-forest-800"><Icon aria-hidden="true" size={18} /></span><EvidencePill level={level} /></div>
               <h3 className="mt-5 font-display text-2xl font-semibold">{title}</h3><p className="mt-3 text-sm leading-6 text-ink-700">{copy}</p>
             </article>
@@ -58,7 +57,7 @@ export default async function TraceabilityPage() {
             {lots.slice(0, 3).map((lot) => {
               const product = products.find((item) => item.id === lot.productId);
               return (
-                <article key={lot.lotCode} className="topo-surface flex min-h-[23rem] flex-col rounded-[1.5rem] border border-white/15 bg-white/5 p-6">
+                <article key={lot.lotCode} className="topo-surface flex min-h-[23rem] flex-col rounded-[1.5rem] border border-white/15 bg-white/5 p-6 shadow-[0_24px_65px_rgba(0,0,0,.14)] transition duration-300 hover:-translate-y-1 hover:border-white/30">
                   <div className="flex items-start justify-between gap-3"><p className="text-xs font-bold uppercase tracking-[0.14em] text-sand-200">Coffee passport</p><EvidencePill level={lot.evidenceLevel} /></div>
                   <p className="lot-code mt-8 text-lg font-bold">{lot.lotCode}</p>
                   <h3 className="mt-2 font-display text-3xl font-semibold tracking-[-0.035em]">{product?.shortName ?? lot.variety}</h3>

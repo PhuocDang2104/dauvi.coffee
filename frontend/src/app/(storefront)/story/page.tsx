@@ -19,8 +19,6 @@ export default async function StoryPage() {
         <div className="shell relative">
           <p className="eyebrow">{STORY_CONTENT.hero.eyebrow}</p>
           <h1 className="display-heading mt-6 max-w-5xl">{STORY_CONTENT.hero.title}</h1>
-          <p className="mt-8 max-w-3xl text-xl leading-9 text-ink-700">{STORY_CONTENT.hero.introduction}</p>
-          <p className="mt-12 font-display text-2xl italic text-clay-500">Six coffees. One Vietnamese journey.</p>
         </div>
       </header>
 
@@ -54,7 +52,7 @@ export default async function StoryPage() {
 
       <section className="section-space border-y border-basalt-900/10 bg-paper-100">
         <div className="shell"><div className="flex flex-col justify-between gap-6 md:flex-row md:items-end"><div><p className="eyebrow">Six product portraits</p><h2 className="section-heading mt-4">Sáu gương mặt của cà phê Việt</h2></div><Link href="/shop" className="button-secondary self-start md:self-auto">Khám phá bộ sưu tập <ArrowRight aria-hidden="true" size={17} /></Link></div>
-          <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">{products.map((product) => <Link href={`/shop/${product.slug}`} key={product.id} className="group rounded-[1.2rem] border border-basalt-900/10 bg-mist-50 p-3 text-center"><ProductPack product={product} className="mx-auto w-[72%] shadow-soft transition-transform group-hover:-translate-y-1" /><p className="mt-4 text-xs font-extrabold leading-5 text-forest-950">{product.shortName}</p><p className="mt-1 text-[.65rem] text-ink-500">{product.regionLabel}</p></Link>)}</div>
+          <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">{products.map((product) => <Link href={`/shop/${product.slug}`} key={product.id} className="group rounded-[1.2rem] border border-basalt-900/10 bg-mist-50 p-2 text-center shadow-[0_12px_35px_rgba(24,26,24,.06)] transition duration-300 hover:-translate-y-1 hover:shadow-soft"><ProductPack product={product} className="mx-auto w-full transition-transform duration-500 group-hover:scale-[1.03]" /><p className="px-2 pb-3 text-xs font-extrabold leading-5 text-forest-950">{product.shortName}</p></Link>)}</div>
         </div>
       </section>
 

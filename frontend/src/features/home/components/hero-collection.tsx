@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDownRight, ArrowRight, Compass, MapPin } from "lucide-react";
+import { ArrowDownRight, ArrowRight, MapPin } from "lucide-react";
 import type { Product } from "@/features/products/domain/product.types";
 import { ProductPack } from "@/features/products/components/product-pack";
 
@@ -14,9 +14,6 @@ export function HomeHero({ products }: { products: Product[] }) {
         <div className="relative z-10 max-w-3xl">
           <p className="eyebrow">Vietnam Traceable Coffee Collection</p>
           <h1 className="display-heading mt-6">Cà phê Việt Nam, được kể đến từng lô.</h1>
-          <p className="mt-7 max-w-2xl text-lg leading-8 text-ink-700">
-            Từ Robusta Tây Nguyên đến Arabica Langbiang, khám phá sáu dòng cà phê đóng gói theo giống, vùng trồng, cách sơ chế và hương vị.
-          </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link href="/shop" className="button-primary">
               Khám phá bộ sưu tập <ArrowRight aria-hidden="true" size={17} />
@@ -33,11 +30,11 @@ export function HomeHero({ products }: { products: Product[] }) {
         </div>
 
         <div className="topo-surface relative min-h-[32rem] rounded-[2rem] border border-forest-950/10 bg-mist-50/60 p-5 sm:min-h-[38rem]">
-          <div className="absolute left-[8%] top-[12%] z-10 w-[48%] -rotate-6 sm:left-[11%] sm:w-[42%]">
-            <ProductPack product={tr4} />
+          <div className="hero-pack-float absolute left-[2%] top-[7%] z-10 w-[61%] -rotate-6 sm:left-[4%] sm:w-[57%]">
+            <ProductPack product={tr4} priority />
           </div>
-          <div className="absolute bottom-[7%] right-[7%] z-20 w-[45%] rotate-5 sm:right-[10%] sm:w-[39%]">
-            <ProductPack product={catimor} />
+          <div className="hero-pack-float-delayed absolute bottom-[2%] right-[0%] z-20 w-[58%] rotate-5 sm:right-[2%] sm:w-[54%]">
+            <ProductPack product={catimor} priority />
           </div>
           <svg aria-hidden="true" className="absolute inset-0 h-full w-full text-clay-500" viewBox="0 0 600 650" fill="none">
             <path d="M488 88c-78 93-141 167-185 259-38 80-61 127-155 209" stroke="currentColor" strokeWidth="2" strokeDasharray="7 9" />
@@ -60,36 +57,25 @@ export function HomeHero({ products }: { products: Product[] }) {
 
 export function CollectionOverview() {
   const stats = [
-    ["04", "Robusta", "Đậm, body dày, caffeine cao"],
-    ["02", "Arabica", "Thanh hơn, thơm và độ chua rõ"],
-    ["03", "Sơ chế", "Natural · Honey · Washed"],
-    ["05", "Vùng", "Từ Gia Lai đến Langbiang"],
+    ["04", "Robusta"],
+    ["02", "Arabica"],
+    ["03", "Sơ chế"],
+    ["05", "Vùng"],
   ];
 
   return (
     <section id="collection-overview" className="section-space shell">
-      <div className="grid gap-8 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
-        <div>
-          <p className="eyebrow">Collection overview</p>
-          <h2 className="section-heading mt-4">Sáu sản phẩm, một hành trình Việt Nam</h2>
-        </div>
-        <p className="max-w-2xl text-lg leading-8 text-ink-700 lg:justify-self-end">
-          Một phổ vị bắt đầu từ ly phin Robusta đậm đà và đi dần đến Bourbon thanh, ngọt, giàu hương — không đặt sản phẩm nào là “tốt nhất”.
-        </p>
+      <div className="max-w-3xl">
+        <p className="eyebrow">Collection overview</p>
+        <h2 className="section-heading mt-4">Sáu sản phẩm, một hành trình Việt Nam</h2>
       </div>
       <div className="mt-10 grid overflow-hidden rounded-[1.5rem] border border-basalt-900/10 bg-white/55 sm:grid-cols-2 lg:grid-cols-4">
-        {stats.map(([value, label, description]) => (
+        {stats.map(([value, label]) => (
           <div key={label} className="border-b border-r border-basalt-900/10 p-6 last:border-b-0 lg:p-7">
             <p className="font-display text-5xl font-semibold tracking-[-0.06em] text-clay-500">{value}</p>
             <h3 className="mt-2 font-bold text-forest-950">{label}</h3>
-            <p className="mt-2 text-sm leading-6 text-ink-700">{description}</p>
           </div>
         ))}
-      </div>
-      <div className="mt-5 flex flex-wrap items-center gap-5 rounded-2xl bg-paper-100 px-5 py-4 text-sm text-ink-700">
-        <span className="flex items-center gap-2"><Compass aria-hidden="true" size={16} className="text-forest-600" /><strong className="text-ink-950">Gợi ý cho người mới:</strong></span>
-        <span>Robusta thiên đậm và dày.</span>
-        <span>Arabica thiên hương thơm và độ chua sáng.</span>
       </div>
     </section>
   );

@@ -27,7 +27,7 @@ export function HeaderSurface({
       className={cn(
         "border-b transition-colors duration-200 motion-reduce:transition-none",
         scrolled || !transparent
-          ? "border-[var(--sand-200,#e5d8c5)]/80 bg-[var(--mist-50,#faf8f2)]/95 shadow-[0_8px_30px_rgba(24,26,24,0.05)] backdrop-blur-xl"
+          ? "border-[var(--sand-200,#e5d8c5)]/80 bg-[var(--mist-50,#faf8f2)]/92 shadow-[0_12px_40px_rgba(24,26,24,0.08)] backdrop-blur-xl"
           : "border-transparent bg-transparent",
       )}
     >

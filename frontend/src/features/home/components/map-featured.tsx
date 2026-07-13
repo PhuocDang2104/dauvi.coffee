@@ -8,14 +8,9 @@ export function FlavorMapSection() {
   return (
     <section className="border-y border-basalt-900/10 bg-forest-950 py-20 text-mist-50 md:py-28">
       <div className="shell">
-        <div className="grid gap-8 md:grid-cols-[.85fr_1.15fr] md:items-end">
-          <div>
-            <p className="eyebrow !text-honey-500">Vietnam flavor map</p>
-            <h2 className="section-heading mt-4">Một bản đồ, nhiều sắc thái cà phê</h2>
-          </div>
-          <p className="max-w-xl text-lg leading-8 text-sand-200 md:justify-self-end">
-            Độ cao, khí hậu và cách sơ chế cùng tạo nên những hướng vị khác nhau dọc cao nguyên Việt Nam.
-          </p>
+        <div className="max-w-3xl">
+          <p className="eyebrow !text-honey-500">Vietnam flavor map</p>
+          <h2 className="section-heading mt-4">Một bản đồ, nhiều sắc thái cà phê</h2>
         </div>
         <OriginMap className="mt-12 text-ink-950 [&_figcaption]:text-mist-50 [&_figcaption_li]:bg-white/10 [&_figcaption_li]:text-mist-50 [&_figcaption_p]:text-mist-50" />
       </div>

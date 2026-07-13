@@ -19,31 +19,20 @@ const roastLabels: Record<string, string> = {
   dark: "Dark",
 };
 
-const brewLabels: Record<string, string> = {
-  phin: "Phin",
-  espresso: "Espresso",
-  "pour-over": "Pour-over",
-  aeropress: "AeroPress",
-  "french-press": "French press",
-  "moka-pot": "Moka pot",
-  "cold-brew": "Cold brew",
-  drip: "Drip",
-};
-
 interface ProductCardProps {
   product: Product;
   priority?: boolean;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, priority = false }: ProductCardProps) {
   const startingPrice = Math.min(...product.variants.filter((variant) => variant.inStock).map((variant) => variant.price.amount));
 
   return (
-    <article className="group flex h-full flex-col overflow-hidden rounded-[1.55rem] border border-basalt-900/10 bg-white/70 transition-colors hover:border-forest-800/30">
+    <article className="group flex h-full flex-col overflow-hidden rounded-[1.55rem] border border-basalt-900/10 bg-white/80 shadow-[0_14px_45px_rgba(24,26,24,.06)] transition duration-300 hover:-translate-y-1 hover:border-forest-800/25 hover:shadow-[0_24px_70px_rgba(24,26,24,.13)]">
       <div className="relative aspect-[5/5.4] overflow-hidden bg-paper-100">
         <Link
           href={`/shop/${product.slug}`}
-          className="absolute inset-0 flex items-center justify-center p-8 md:p-10"
+          className="absolute inset-0 flex items-center justify-center p-2 md:p-3"
           aria-label={`Xem ${product.displayName}`}
         >
         <div className="absolute left-4 top-4 z-10 rounded-full border border-forest-950/15 bg-mist-50/90 px-3 py-1 text-[0.66rem] font-bold uppercase tracking-[0.12em] text-forest-800 backdrop-blur">
@@ -56,7 +45,8 @@ export function ProductCard({ product }: ProductCardProps) {
         ) : null}
           <ProductPack
             product={product}
-            className="h-auto w-[58%] max-w-[14.5rem] transition-transform duration-200 group-hover:-translate-y-1.5"
+            className="w-[92%] max-w-[24rem] transition duration-500 ease-out group-hover:scale-[1.035]"
+            priority={priority}
           />
         </Link>
         <ProductQuickView product={product} />
@@ -72,13 +62,6 @@ export function ProductCard({ product }: ProductCardProps) {
           </Link>
         </h3>
         <p className="mt-3 text-sm leading-6 text-ink-700">{product.flavor.notes.slice(0, 3).join(" · ")}</p>
-        <div className="mt-4 flex flex-wrap gap-1.5" aria-label="Cách pha phù hợp">
-          {product.brewMethods.slice(0, 3).map((brew) => (
-            <span key={brew} className="rounded-full border border-basalt-900/10 bg-mist-50 px-2.5 py-1 text-[0.7rem] font-semibold text-ink-700">
-              {brewLabels[brew] ?? brew}
-            </span>
-          ))}
-        </div>
         <div className="mt-auto flex items-end justify-between gap-4 pt-6">
           <div>
             <p className="text-[0.66rem] font-bold uppercase tracking-[0.12em] text-ink-500">Từ</p>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ChevronRight, Info, MapPin } from "lucide-react";
+import { ArrowRight, ChevronRight, MapPin } from "lucide-react";
 import { getRepositories } from "@/lib/data-source";
 import { formatCurrency } from "@/lib/format/currency";
 import { getStartingPrice } from "@/features/products/domain/product.utils";
@@ -100,7 +100,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
       <section className="section-space border-y border-basalt-900/10 bg-paper-100">
         <div className="shell grid gap-10 lg:grid-cols-[.65fr_1.35fr]">
-          <div><p className="eyebrow">Flavor profile</p><h2 className="section-heading mt-4">Cấu trúc trong tách</h2><p className="mt-5 max-w-md leading-7 text-ink-700">Năm chỉ số giúp bạn hình dung nhanh, luôn đi kèm thang điểm và mô tả bằng chữ.</p></div>
+          <div><p className="eyebrow">Flavor profile</p><h2 className="section-heading mt-4">Cấu trúc trong tách</h2></div>
           <FlavorProfile flavor={product.flavor} />
         </div>
       </section>
@@ -121,7 +121,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </section>
 
       <section className="section-space shell">
-        <div className="max-w-3xl"><p className="eyebrow">Brew match</p><h2 className="section-heading mt-4">Cách pha hợp với cấu trúc vị này</h2><p className="mt-5 text-ink-700">Thông số là điểm bắt đầu gợi ý; hãy điều chỉnh theo dụng cụ, nguồn nước và khẩu vị của bạn.</p></div>
+        <div className="max-w-3xl"><p className="eyebrow">Brew match</p><h2 className="section-heading mt-4">Cách pha hợp với cấu trúc vị này</h2></div>
         <div className="mt-10"><BrewMatch product={product} /></div>
       </section>
 
@@ -129,7 +129,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <div className="shell">
           <div className="grid gap-8 lg:grid-cols-[.65fr_1.35fr] lg:items-end">
             <div><p className="eyebrow !text-honey-500">Transparency</p><h2 className="section-heading mt-4">Dữ liệu được đặt cạnh bằng chứng</h2></div>
-            <p className="max-w-xl text-sand-200 lg:justify-self-end"><Info className="mr-2 inline" aria-hidden="true" size={16} />Hồ sơ lô và đơn vị sản xuất đang là Demo Data; thông tin giống được tách riêng dưới nhãn Reference Data.</p>
+            <p className="max-w-xl text-sm text-sand-200 lg:justify-self-end">Hồ sơ lô là Demo Data; thông tin giống được tách dưới nhãn Reference Data.</p>
           </div>
           <div className="mt-10 text-ink-950"><TransparencyTable evidence={lot.evidence} /></div>
         </div>

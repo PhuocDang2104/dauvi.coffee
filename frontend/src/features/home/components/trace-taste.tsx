@@ -9,14 +9,9 @@ export function TraceabilitySpotlight({ product, lot }: { product: Product; lot:
   return (
     <section className="section-space bg-paper-100">
       <div className="shell">
-        <div className="grid gap-8 lg:grid-cols-[.7fr_1.3fr] lg:items-end">
-          <div>
-            <p className="eyebrow">Traceability spotlight</p>
-            <h2 className="section-heading mt-4">Theo dấu từ vùng trồng đến ngày rang</h2>
-          </div>
-          <p className="max-w-xl text-lg leading-8 text-ink-700 lg:justify-self-end">
-            Mã lô kết nối thông tin sản phẩm với từng chặng trong hành trình — và cho biết rõ mức bằng chứng của mỗi dữ liệu.
-          </p>
+        <div className="max-w-3xl">
+          <p className="eyebrow">Traceability spotlight</p>
+          <h2 className="section-heading mt-4">Theo dấu từ vùng trồng đến ngày rang</h2>
         </div>
 
         <div className="topo-surface mt-12 overflow-hidden rounded-[2rem] border border-forest-950/15 bg-mist-50">
@@ -58,7 +53,6 @@ export function TasteSpectrum({ products }: { products: Product[] }) {
       <div className="max-w-3xl">
         <p className="eyebrow">Taste-first selection</p>
         <h2 className="section-heading mt-4">Bắt đầu từ khẩu vị của bạn</h2>
-        <p className="mt-5 text-lg leading-8 text-ink-700">Không cần bắt đầu bằng tên giống. Hãy chọn vị trí gần với tách cà phê bạn muốn uống.</p>
       </div>
       <div className="mt-12 rounded-[1.7rem] border border-basalt-900/10 bg-white/65 p-6 md:p-10">
         <div className="flex justify-between gap-5 text-xs font-extrabold uppercase tracking-[0.1em] text-ink-700">

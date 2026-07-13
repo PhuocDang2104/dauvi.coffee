@@ -18,7 +18,6 @@ export default async function ShopPage() {
         <div className="shell">
           <p className="eyebrow">Vietnam Traceable Coffee Collection</p>
           <h1 className="display-heading mt-5 max-w-4xl">Chọn cà phê theo vị, vùng và cách pha</h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-ink-700">Sáu dòng cà phê Việt Nam đóng gói, từ Daily Phin đến Heritage Arabica.</p>
         </div>
       </header>
       <div className="shell section-space !pt-10 md:!pt-14">

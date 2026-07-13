@@ -1,15 +1,15 @@
-# Ảnh cần thay
+# Hình ảnh giao diện
 
-## Ảnh sản phẩm — WebP, nền trong hoặc nền giấy sáng, cùng góc chụp
+## Ảnh sản phẩm đã gắn
 
-- `frontend/public/images/products/trs1-daily-phin-pack.webp` — gói TRS1, nâu bazan, mặt trước rõ tên/lot.
-- `frontend/public/images/products/tr4-dak-lak-pack.webp` — gói TR4, xanh rừng, cảm giác chủ lực/traceable.
-- `frontend/public/images/products/tr9-large-bean-pack.webp` — gói TR9, vàng mật ong, Fine Robusta.
-- `frontend/public/images/products/xanh-lun-ts5-pack.webp` — gói Xanh Lùn, xanh lá trầm, Honey process.
-- `frontend/public/images/products/catimor-da-lat-pack.webp` — gói Catimor, xanh sương, cảm giác cao nguyên mát.
-- `frontend/public/images/products/bourbon-langbiang-pack.webp` — gói Bourbon, berry/mật ong, premium và thanh.
+- `frontend/public/images/products/trs1-daily-phin-pack.png` — TRS1, nâu bazan.
+- `frontend/public/images/products/tr4-dak-lak-pack.png` — TR4, xanh rừng.
+- `frontend/public/images/products/tr9-large-bean-pack.png` — TR9, vàng mật ong.
+- `frontend/public/images/products/xanh-lun-ts5-pack.png` — Xanh Lùn TS5, xanh lá trầm.
+- `frontend/public/images/products/catimor-da-lat-pack.png` — Catimor, xanh sương.
+- `frontend/public/images/products/bourbon-langbiang-pack.png` — Bourbon, đỏ berry.
 
-> Sáu đường dẫn trên đã có trong mock data/JSON-LD. UI hiện dùng pack CSS/SVG; dùng các ảnh này khi chuyển component gallery/card sang ảnh chụp thật.
+> Sáu ảnh đã được dùng trong hero, card, quick view, product detail, story và passport.
 
 ## Brand và hình nền — thay trực tiếp sẽ cập nhật UI
 

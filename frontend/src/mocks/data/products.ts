@@ -46,7 +46,7 @@ const tr4 = createProduct({
   accent: "#214536",
   pattern: "angular-route",
   image: {
-    src: "/images/products/tr4-dak-lak-pack.webp",
+    src: "/images/products/tr4-dak-lak-pack.png",
     alt: "Gói cà phê DẤU VỊ TR4 màu xanh rừng với đường tuyến địa hình",
   },
   variants: createStandardVariants({
@@ -93,7 +93,7 @@ const catimor = createProduct({
   accent: "#71838a",
   pattern: "fine-mountain-lines",
   image: {
-    src: "/images/products/catimor-da-lat-pack.webp",
+    src: "/images/products/catimor-da-lat-pack.png",
     alt: "Gói cà phê DẤU VỊ Catimor màu sương với đường núi mảnh",
   },
   variants: createStandardVariants({
@@ -141,7 +141,7 @@ const xanhLun = createProduct({
   accent: "#3f6b52",
   pattern: "compact-rounded-contour",
   image: {
-    src: "/images/products/xanh-lun-ts5-pack.webp",
+    src: "/images/products/xanh-lun-ts5-pack.png",
     alt: "Gói cà phê DẤU VỊ Xanh Lùn TS5 màu lá với đường đồng mức bo tròn",
   },
   variants: createStandardVariants({
@@ -188,7 +188,7 @@ const trs1 = createProduct({
   accent: "#5a3729",
   pattern: "broad-horizontal-contour",
   image: {
-    src: "/images/products/trs1-daily-phin-pack.webp",
+    src: "/images/products/trs1-daily-phin-pack.png",
     alt: "Gói cà phê DẤU VỊ TRS1 màu bazan với đường đồng mức ngang",
   },
   variants: createStandardVariants({
@@ -235,7 +235,7 @@ const tr9 = createProduct({
   accent: "#c79648",
   pattern: "large-bean-dot-grid",
   image: {
-    src: "/images/products/tr9-large-bean-pack.webp",
+    src: "/images/products/tr9-large-bean-pack.png",
     alt: "Gói cà phê DẤU VỊ TR9 màu mật ong với lưới chấm hạt lớn",
   },
   variants: createStandardVariants({
@@ -282,7 +282,7 @@ const bourbon = createProduct({
   accent: "#9b4f58",
   pattern: "high-altitude-thin-contour",
   image: {
-    src: "/images/products/bourbon-langbiang-pack.webp",
+    src: "/images/products/bourbon-langbiang-pack.png",
     alt: "Gói cà phê DẤU VỊ Bourbon màu berry và mật ong với đường cao độ mảnh",
   },
   variants: createStandardVariants({
@@ -305,4 +305,3 @@ export const mockProducts = productArraySchema.parse([
 ]);
 
 export const mockProductById = new Map(mockProducts.map((product) => [product.id, product]));
-
