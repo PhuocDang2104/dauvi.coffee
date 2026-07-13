@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">DẤU VỊ — Vietnam Traceable Coffee</title>
+  <desc id="desc">Ảnh chia sẻ thương hiệu với đường đồng mức và hành trình từ Tây Nguyên đến Langbiang.</desc>
+  <rect width="1200" height="630" fill="#faf8f2"/>
+  <path d="M725 54c128 42 129 140 35 206-84 59-112 148-15 249 74 77 42 111-35 128M770 2c168 61 168 190 46 277-107 77-142 185-27 312M840 26c110 67 104 161 13 229-92 69-109 157-31 248" fill="none" stroke="#3f6b52" stroke-opacity=".18" stroke-width="3"/>
+  <path d="M683 95c-71 76-33 142 42 170 67 25 93 76 56 142-32 57-13 108 64 151" fill="none" stroke="#b86f45" stroke-width="5" stroke-linecap="round" stroke-dasharray="5 15"/>
+  <circle cx="685" cy="94" r="11" fill="#b86f45"/><circle cx="845" cy="558" r="11" fill="#b86f45"/>
+  <text x="94" y="180" fill="#b86f45" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing="5">VIETNAM TRACEABLE COFFEE</text>
+  <text x="88" y="304" fill="#102a20" font-family="Georgia, serif" font-size="91" font-weight="700" letter-spacing="8">DẤU VỊ</text>
+  <text x="94" y="370" fill="#454944" font-family="Georgia, serif" font-size="36">Cà phê Việt Nam, được kể đến từng lô.</text>
+  <text x="94" y="480" fill="#454944" font-family="Arial, sans-serif" font-size="22" letter-spacing="2">FROM THE HIGHLANDS OF VIETNAM</text>
+</svg>

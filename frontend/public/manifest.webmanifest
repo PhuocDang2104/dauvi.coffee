@@ -1,0 +1,18 @@
+{
+  "name": "DẤU VỊ — Vietnam Traceable Coffee",
+  "short_name": "DẤU VỊ",
+  "description": "Cà phê Việt Nam được kể bằng giống, vùng trồng, phương pháp sơ chế, mức rang và mã lô.",
+  "lang": "vi",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f2",
+  "theme_color": "#102a20",
+  "icons": [
+    {
+      "src": "/brand/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

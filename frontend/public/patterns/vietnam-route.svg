@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 760" fill="none" role="img" aria-labelledby="title desc">
+  <title id="title">Hành trình cà phê Việt Nam</title>
+  <desc id="desc">Đường minh họa kết nối Gia Lai, Đắk Lắk, Bảo Lâm, Đà Lạt và Langbiang.</desc>
+  <path d="M230 43c-28 44-24 84 11 117 30 28 31 69 5 107-30 43-33 82-10 119 25 41 14 84-18 123-36 43-46 86-27 129 13 30 9 59-18 88" stroke="#3f6b52" stroke-opacity=".3" stroke-width="2"/>
+  <path d="M243 344c-43 47-37 96 9 126 42 28 38 73-11 110-31 24-42 60-26 101" stroke="#b86f45" stroke-width="3" stroke-linecap="round" stroke-dasharray="4 11"/>
+  <g fill="#b86f45" stroke="#faf8f2" stroke-width="3">
+    <circle cx="243" cy="344" r="7"/><circle cx="222" cy="404" r="7"/><circle cx="234" cy="519" r="7"/><circle cx="250" cy="575" r="7"/><circle cx="215" cy="681" r="7"/>
+  </g>
+</svg>
