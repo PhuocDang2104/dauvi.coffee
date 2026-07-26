@@ -22,6 +22,7 @@ export class ApiClient {
     return apiRequest<T>(path, {
       ...options,
       baseUrl: this.baseUrl,
+      cache: options.cache ?? "no-store",
       method: "GET",
     });
   }
@@ -52,4 +53,3 @@ export class ApiClient {
     });
   }
 }
-

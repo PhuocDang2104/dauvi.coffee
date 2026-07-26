@@ -31,10 +31,22 @@ export function CheckoutSuccess({ confirmation }: CheckoutSuccessProps) {
         Đơn demo đã được tạo
       </h2>
       <p className="mx-auto mt-4 max-w-lg leading-7 text-[var(--ink-700)]">
-        Đây là luồng trình diễn frontend; chưa có giao dịch hoặc đơn hàng thật.
+        {confirmation.persistedOnServer
+          ? "Đơn trình diễn đã được lưu trên hệ thống; chưa phát sinh thanh toán hoặc yêu cầu giao hàng thật."
+          : "Đây là luồng trình diễn frontend; chưa có giao dịch hoặc đơn hàng thật."}
       </p>
 
       <div className="mx-auto mt-7 grid max-w-md gap-3 rounded-2xl bg-[var(--mist-50)] p-5 text-left text-sm sm:grid-cols-2">
+        {confirmation.orderCode ? (
+          <div className="sm:col-span-2">
+            <span className="block text-[var(--ink-500)]">
+              Mã đơn trình diễn
+            </span>
+            <strong className="mt-1 block font-mono tracking-wide">
+              {confirmation.orderCode}
+            </strong>
+          </div>
+        ) : null}
         <div>
           <span className="block text-[var(--ink-500)]">Người nhận</span>
           <strong className="mt-1 block">{confirmation.recipientName}</strong>
@@ -49,7 +61,7 @@ export function CheckoutSuccess({ confirmation }: CheckoutSuccessProps) {
 
       <p className="mt-5 inline-flex items-center gap-2 text-xs leading-5 text-[var(--ink-500)]">
         <MapPin className="size-4" aria-hidden="true" />
-        Không có yêu cầu giao hàng nào được gửi đi.
+        Không có yêu cầu giao hàng thật nào được gửi đi.
       </p>
 
       <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

@@ -1,14 +1,72 @@
+name: dau-vi
+
 services:
-  frontend:
+  database:
+    image: postgres:17.10-alpine3.23
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dauvi}
+      POSTGRES_USER: ${POSTGRES_USER:-dauvi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in docker/.env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - data
+    security_opt:
+      - no-new-privileges:true
+    shm_size: 128mb
+
+  backend:
     build:
       context: ..
-      dockerfile: docker/frontend.Dockerfile
-      args:
-        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
-        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000/api/v1}
-        NEXT_PUBLIC_DATA_SOURCE: ${NEXT_PUBLIC_DATA_SOURCE:-mock}
-        NEXT_PUBLIC_ENABLE_CHECKOUT: ${NEXT_PUBLIC_ENABLE_CHECKOUT:-false}
-        NEXT_PUBLIC_ENABLE_AUTH: ${NEXT_PUBLIC_ENABLE_AUTH:-false}
-    ports:
-      - "3000:3000"
+      dockerfile: docker/backend.Dockerfile
     restart: unless-stopped
+    init: true
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      APP_ENV: production
+      DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-dauvi}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB:-dauvi}
+      CORS_ORIGINS: ${CORS_ORIGINS:?Set CORS_ORIGINS in docker/.env}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS:-*}
+      DOCS_ENABLED: ${DOCS_ENABLED:-false}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
+      FORWARDED_ALLOW_IPS: ${FORWARDED_ALLOW_IPS:-*}
+    ports:
+      - "${BACKEND_BIND_ADDRESS:-127.0.0.1}:${BACKEND_PORT:-8000}:8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health/ready', timeout=3)",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+    read_only: true
+    tmpfs:
+      - /tmp:size=64m,mode=1777
+    networks:
+      - app
+      - data
+    security_opt:
+      - no-new-privileges:true
+
+networks:
+  app:
+  data:
+    internal: true
+
+volumes:
+  postgres_data:

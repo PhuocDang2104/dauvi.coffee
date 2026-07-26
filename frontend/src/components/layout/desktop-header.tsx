@@ -40,19 +40,17 @@ export function DesktopHeader({
 
       <div className="flex min-w-[12.5rem] flex-1 items-center justify-end gap-1">
         <SearchDialog />
-        <button
-          type="button"
-          disabled
-          title="Tài khoản sẽ được tích hợp ở giai đoạn sau"
-          className="grid size-11 place-items-center rounded-full text-[var(--ink-500,#6c716c)] opacity-65"
-          aria-label="Tài khoản — sắp có"
+        <Link
+          href="/login"
+          className="grid size-11 place-items-center rounded-full text-[var(--ink-700,#454944)] transition hover:bg-[var(--paper-100,#f3eee4)] hover:text-[var(--forest-950,#102a20)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--clay-500,#b86f45)]"
+          aria-label="Đăng nhập hoặc đăng ký"
         >
           <UserRound
             aria-hidden="true"
             className="size-[1.15rem]"
             strokeWidth={1.8}
           />
-        </button>
+        </Link>
         {cartSlot ?? (
           <Link
             href="/cart"

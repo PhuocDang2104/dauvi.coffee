@@ -8,13 +8,26 @@
 /frontend/*.tsbuildinfo
 /frontend/next-env.d.ts
 
+# Backend local state
+/backend/.venv/
+/backend/.pytest_cache/
+/backend/.ruff_cache/
+/backend/**/__pycache__/
+/backend/**/*.pyc
+/backend/dauvi.db
+**/__pycache__/
+**/*.pyc
+
 # Local environment
 .env
 .env.local
 .env.*.local
 /frontend/.env.local
+/backend/.env
+/docker/.env
 
 # Misc
 .DS_Store
 Thumbs.db
 *.log
+~$*.docx

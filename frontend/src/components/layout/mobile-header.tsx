@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import Link from "next/link";
-import { ArrowUpRight, Menu, ShoppingBag, X } from "lucide-react";
+import { ArrowUpRight, LogIn, Menu, ShoppingBag, X } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { PRIMARY_NAVIGATION } from "@/config/navigation";
@@ -129,7 +129,10 @@ export function MobileHeader({ cartCount = 0, cartSlot }: MobileHeaderProps) {
             ))}
           </ul>
 
-          <div className="mt-auto rounded-2xl bg-[var(--forest-950,#102a20)] p-5 text-white">
+          <Link href="/login" onClick={() => setOpen(false)} className="mt-auto flex min-h-12 items-center justify-between rounded-xl border border-forest-950/15 px-4 text-sm font-bold text-forest-950">
+            Đăng nhập / Đăng ký <LogIn aria-hidden="true" size={17} />
+          </Link>
+          <div className="mt-3 rounded-2xl bg-[var(--forest-950,#102a20)] p-5 text-white">
             <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-white/65">
               Mã lô demo
             </p>

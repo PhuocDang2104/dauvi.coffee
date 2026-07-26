@@ -6,10 +6,7 @@ function isVietnamesePhoneNumber(value: string): boolean {
 }
 
 export const checkoutSchema = z.object({
-  fullName: z
-    .string()
-    .trim()
-    .min(2, "Vui lòng nhập họ và tên người nhận."),
+  fullName: z.string().trim().min(2, "Vui lòng nhập họ và tên người nhận."),
   phone: z
     .string()
     .trim()
@@ -28,14 +25,25 @@ export const checkoutSchema = z.object({
   district: z.string().trim().min(2, "Vui lòng nhập quận hoặc huyện."),
   ward: z.string().trim().min(2, "Vui lòng nhập phường hoặc xã."),
   address: z.string().trim().min(5, "Vui lòng nhập địa chỉ cụ thể."),
-  deliveryNote: z.string().trim().max(300, "Ghi chú tối đa 300 ký tự.").optional(),
+  deliveryNote: z
+    .string()
+    .trim()
+    .max(300, "Ghi chú tối đa 300 ký tự.")
+    .optional(),
   shippingMethod: z.literal("standard"),
   paymentMethod: z.literal("cod"),
   acceptDemo: z
     .boolean()
-    .refine(
-      (accepted) => accepted,
-      "Vui lòng xác nhận đây là đơn trình diễn.",
-    ),
+    .refine((accepted) => accepted, "Vui lòng xác nhận đây là đơn trình diễn."),
 });
 
+export const orderResponseSchema = z.object({
+  orderCode: z.string().min(1),
+  recipientName: z.string().min(1),
+  itemCount: z.number().int().positive(),
+  subtotal: z.number().int().nonnegative(),
+  shippingFee: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative(),
+  status: z.literal("demo-confirmed"),
+  createdAt: z.string().min(1),
+});

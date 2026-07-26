@@ -150,9 +150,11 @@ interface AdvisorResponse {
 }
 ```
 
-Frontend ghép `productId` với catalog để tạo `ProductRecommendation`. MVP dùng rule engine TypeScript; endpoint này là chỗ thay thế bằng AI/RAG ở giai đoạn sau.
+Frontend ghép `productId` với catalog để tạo `ProductRecommendation`. Backend hiện
+dùng cùng bộ quy tắc xác định và có thể được thay bằng AI/RAG ở giai đoạn sau mà
+không đổi response contract.
 
-## Cart và checkout — dành cho backend tương lai
+## Cart và checkout
 
 ```http
 GET    /cart
@@ -162,5 +164,126 @@ DELETE /cart/items/{itemId}
 POST   /orders
 ```
 
-Cart MVP được lưu localStorage bằng key/version `vtc-cart-v1`. `POST /orders` chưa được gọi và checkout hiện tại không thu thông tin thẻ. Khi tích hợp, cart item phải giữ `productId`, `variantId`, grind, quantity và đơn giá snapshot.
+Cart vẫn được lưu localStorage bằng key/version `vtc-cart-v1`; các endpoint cart
+server-side được giữ cho giai đoạn có tài khoản.
 
+### `POST /orders`
+
+Header tùy chọn nhưng được khuyến nghị:
+
+```http
+Idempotency-Key: <8-100 ký tự A-Z, a-z, 0-9, ., _, :, ->
+```
+
+Body:
+
+```ts
+interface OrderCreate {
+  fullName: string;
+  phone: string; // số Việt Nam, backend chuẩn hóa dấu cách/dấu chấm
+  email?: string;
+  province: string;
+  district: string;
+  ward: string;
+  address: string;
+  deliveryNote?: string;
+  shippingMethod: "standard";
+  paymentMethod: "cod";
+  acceptDemo: true;
+  items: Array<{
+    productId: string;
+    variantId: string;
+    quantity: number; // 1–99
+    grind?: string;
+  }>;
+}
+```
+
+Frontend không gửi `unitPrice` trong request. Backend kiểm tra product/variant,
+stock và grind, sau đó tính lại subtotal từ PostgreSQL. Phí giao hàng demo là
+30.000 VND và bằng 0 khi subtotal từ 499.000 VND.
+
+Response `201`:
+
+```ts
+interface OrderResponse {
+  orderCode: string;
+  recipientName: string;
+  itemCount: number;
+  subtotal: number;
+  shippingFee: number;
+  total: number;
+  status: "demo-confirmed";
+  createdAt: string;
+}
+```
+
+Gửi lại cùng `Idempotency-Key` trả cùng đơn, không tạo bản ghi trùng. Endpoint chỉ
+lưu đơn trình diễn; không thu dữ liệu thẻ, không gọi vận chuyển và không trừ tồn
+kho.
+
+## Authentication — contract đã nối ở frontend, backend chưa triển khai
+
+Frontend bật luồng thật bằng `NEXT_PUBLIC_ENABLE_AUTH=true`. Backend phải dùng
+cookie phiên `HttpOnly; Secure; SameSite=Lax` (hoặc `SameSite=None` khi frontend
+và API thực sự cross-site), không trả access token để frontend lưu vào
+`localStorage`. Mọi request auth dùng `credentials: include`.
+
+```http
+POST /auth/register
+POST /auth/login
+GET  /auth/session
+POST /auth/logout
+```
+
+Body đăng ký:
+
+```ts
+{ fullName: string; email: string; password: string }
+```
+
+Body đăng nhập:
+
+```ts
+{ email: string; password: string; remember: boolean }
+```
+
+Response cho register/login/session:
+
+```ts
+{ user: { id: string; email: string; fullName: string } }
+```
+
+Backend cần hash mật khẩu bằng Argon2id, rotate session, rate-limit login,
+invalidate cookie khi logout và không log password/cookie. CORS phải dùng danh
+sách origin chính xác và `allow_credentials=true`.
+
+## Coffee Assistant — contract dự phòng
+
+Frontend mặc định dùng rule set local. Khi bật
+`NEXT_PUBLIC_ENABLE_CHATBOT_API=true`, widget gọi:
+
+```http
+POST /assistant/messages
+```
+
+Body `{ "message": string }`; response:
+
+```ts
+{
+  message: string;
+  actions: Array<{ label: string; href: `/${string}` }>;
+}
+```
+
+Backend AI/RAG phải giới hạn action trong route nội bộ đã cho phép và giữ
+catalog/evidence guardrail; không tự tạo claim sản phẩm hoặc môi trường.
+
+## Healthcheck
+
+```http
+GET /health/live
+GET /health/ready
+```
+
+`/health/ready` chỉ trả `200` khi backend kết nối được PostgreSQL.

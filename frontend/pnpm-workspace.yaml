@@ -1,3 +1,6 @@
 allowBuilds:
   sharp: true
   unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@fontsource-variable/fraunces@5.3.0'
+  - '@fontsource-variable/manrope@5.3.0'

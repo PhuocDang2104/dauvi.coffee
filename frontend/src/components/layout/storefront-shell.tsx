@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { calculateCartQuantity, CartDrawer, MiniCartButton, useCartHydrated, useCartStore } from "@/features/cart";
+import { CoffeeChatWidget } from "@/features/chatbot/components/coffee-chat-widget";
 import { SiteHeader } from "./site-header";
 import { SiteFooter } from "./site-footer";
 
@@ -16,6 +17,7 @@ export function StorefrontShell({ children }: { children: ReactNode }) {
       {children}
       <SiteFooter />
       <CartDrawer />
+      <CoffeeChatWidget />
     </>
   );
 }

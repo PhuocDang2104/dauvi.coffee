@@ -1,20 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Manrope } from "next/font/google";
+import "@fontsource-variable/fraunces/wght.css";
+import "@fontsource-variable/manrope/wght.css";
 import { OrganizationJsonLd } from "@/components/seo/organization-json-ld";
 import { StorefrontShell } from "@/components/layout/storefront-shell";
 import "./globals.css";
-
-const fraunces = Fraunces({
-  subsets: ["latin", "vietnamese"],
-  variable: "--font-fraunces",
-  display: "swap",
-});
-
-const manrope = Manrope({
-  subsets: ["latin", "vietnamese"],
-  variable: "--font-manrope",
-  display: "swap",
-});
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
@@ -62,7 +51,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="vi" className={`${fraunces.variable} ${manrope.variable}`}>
+    <html lang="vi">
       <body>
         <a className="skip-link" href="#main-content">
           Chuyển đến nội dung chính

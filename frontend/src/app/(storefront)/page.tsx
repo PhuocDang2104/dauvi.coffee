@@ -15,7 +15,7 @@ export default async function HomePage() {
 
   return (
     <main id="main-content">
-      <HomeHero products={products} />
+      <HomeHero />
       <CollectionOverview />
       <FlavorMapSection />
       <FeaturedProductsSection products={products} />

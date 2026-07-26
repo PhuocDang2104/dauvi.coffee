@@ -12,6 +12,17 @@ Paper/mist là nền chính; forest dùng cho cấu trúc và CTA, clay/honey l�
 
 Trang và dữ liệu chính render trên server. Filter, quick view, selectors, cart, quiz và form là client islands. URL là source of truth cho filter; localStorage là source of persistence cho cart.
 
+HTTP repositories dùng `cache: no-store` để dữ liệu catalog/lot từ backend không
+bị đóng băng ngoài ý muốn khi frontend chạy trên Vercel. Chế độ mock vẫn hỗ trợ
+build tĩnh và kiểm thử độc lập.
+
+## Ranh giới triển khai
+
+Frontend deploy Vercel. FastAPI và PostgreSQL chạy trong Docker trên cloud;
+PostgreSQL chỉ ở mạng nội bộ, backend publish `127.0.0.1:8000` để Caddy hiện có
+reverse proxy. Checkout dùng idempotency key và server-side repricing nhưng chỉ
+tạo đơn trình diễn, không thực hiện thanh toán hoặc giao vận.
+
 ## Accessibility
 
 Button có hit area tối thiểu 44 px, focus ring rõ, dialogs dùng native/Radix focus trapping, map có title/description và text list, flavor profile có label + meter value, timeline có ordered-list semantics, motion tôn trọng `prefers-reduced-motion`.

@@ -16,6 +16,8 @@ const routes = [
   "/brew-guide",
   "/cart",
   "/checkout",
+  "/login",
+  "/register",
 ];
 
 test("mọi route phản hồi không có console/page/network error", async ({ page }) => {
@@ -44,7 +46,7 @@ for (const viewport of [
 ]) {
   test(`không overflow ngang tại ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    for (const route of ["/", "/shop", "/shop/catimor-da-lat-washed", "/traceability", "/advisor"]) {
+    for (const route of ["/", "/shop", "/shop/catimor-da-lat-washed", "/traceability", "/advisor", "/login", "/register"]) {
       await page.goto(route, { waitUntil: "domcontentloaded" });
       const dimensions = await page.evaluate(() => ({ width: document.documentElement.scrollWidth, viewport: window.innerWidth }));
       expect(dimensions.width, `${route} overflow at ${viewport.width}`).toBeLessThanOrEqual(dimensions.viewport + 1);

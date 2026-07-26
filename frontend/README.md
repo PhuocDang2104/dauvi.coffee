@@ -36,7 +36,13 @@ NEXT_PUBLIC_ENABLE_CHECKOUT=false
 NEXT_PUBLIC_ENABLE_AUTH=false
 ```
 
-`NEXT_PUBLIC_DATA_SOURCE=mock` dùng dữ liệu in-memory đã qua Zod. Chuyển sang `http` sẽ dùng HTTP repositories và không tự fallback về mock.
+`NEXT_PUBLIC_DATA_SOURCE=mock` dùng dữ liệu in-memory đã qua Zod. Chuyển sang
+`http` sẽ dùng HTTP repositories và không tự fallback về mock. Bật
+`NEXT_PUBLIC_ENABLE_CHECKOUT=true` để checkout gọi `POST /api/v1/orders`; backend
+tính lại giá theo variant trong PostgreSQL và trả mã đơn trình diễn.
+
+Mẫu biến production nằm tại `.env.production.example`. Font Fraunces và Manrope
+được self-host bằng Fontsource, không gọi Google Fonts khi build hoặc runtime.
 
 ## Routes
 
@@ -47,7 +53,7 @@ NEXT_PUBLIC_ENABLE_AUTH=false
 - `/traceability/[lotCode]` — lot passport demo.
 - `/advisor` — quiz rule-based sáu bước.
 - `/story`, `/brew-guide` — nội dung thương hiệu và hướng dẫn pha.
-- `/cart`, `/checkout` — giỏ local persisted và checkout COD demo.
+- `/cart`, `/checkout` — giỏ local persisted; checkout COD có thể lưu đơn trình diễn qua API.
 
 ## Kiến trúc
 

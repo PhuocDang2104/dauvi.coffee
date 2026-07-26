@@ -30,6 +30,8 @@
 
 :root {
   color-scheme: light;
+  --font-fraunces: "Fraunces Variable";
+  --font-manrope: "Manrope Variable";
   --header-height: 76px;
   --announcement-height: 36px;
   --forest-950: #102a20;
@@ -212,9 +214,27 @@ a {
   animation: pack-float 7s ease-in-out -3.5s infinite;
 }
 
+.hero-copy-in {
+  animation: hero-copy-in 700ms cubic-bezier(.22,.8,.25,1) both;
+}
+
+.map-detail-in {
+  animation: map-detail-in 240ms ease-out both;
+}
+
 @keyframes pack-float {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+@keyframes hero-copy-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes map-detail-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .lot-code {

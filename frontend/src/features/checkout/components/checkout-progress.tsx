@@ -4,11 +4,7 @@ interface CheckoutProgressProps {
   activeStep?: 1 | 2 | 3;
 }
 
-const STEPS = [
-  "Thông tin người nhận",
-  "Giao hàng",
-  "Xác nhận đơn",
-] as const;
+const STEPS = ["Thông tin người nhận", "Giao hàng", "Xác nhận đơn"] as const;
 
 export function CheckoutProgress({ activeStep = 1 }: CheckoutProgressProps) {
   return (
@@ -54,4 +50,3 @@ export function CheckoutProgress({ activeStep = 1 }: CheckoutProgressProps) {
     </nav>
   );
 }
-

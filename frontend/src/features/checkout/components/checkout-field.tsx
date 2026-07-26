@@ -3,8 +3,10 @@
 import type { InputHTMLAttributes } from "react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 
-interface CheckoutFieldProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "id"> {
+interface CheckoutFieldProps extends Omit<
+  InputHTMLAttributes<HTMLInputElement>,
+  "id"
+> {
   id: string;
   label: string;
   registration: UseFormRegisterReturn;
@@ -56,4 +58,3 @@ export function CheckoutField({
     </div>
   );
 }
-

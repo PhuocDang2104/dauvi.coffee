@@ -17,7 +17,7 @@ test("checkout validate field bắt buộc và tạo xác nhận demo", async ({
   await page.getByLabel("Quận / huyện").fill("Quận 3");
   await page.getByLabel("Phường / xã").fill("Phường 6");
   await page.getByLabel("Số nhà, tên đường").fill("12 Nguyễn Đình Chiểu");
-  await page.getByRole("checkbox", { name: /Tôi hiểu đây là trải nghiệm frontend demo/ }).check();
+  await page.getByRole("checkbox", { name: /Tôi hiểu đây là đơn trình diễn/ }).check();
   await page.getByRole("button", { name: "Tạo đơn demo" }).click();
 
   await expect(page.getByRole("heading", { name: "Đơn demo đã được tạo" })).toBeVisible();

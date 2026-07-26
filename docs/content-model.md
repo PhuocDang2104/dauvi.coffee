@@ -18,7 +18,11 @@ Mỗi `EvidenceItem` mang level riêng. Dữ liệu tham khảo về giống kh�
 
 ## Cart / checkout
 
-Cart item là snapshot nhỏ, tương thích API tương lai: product/variant identifiers, format, size, grind, unit price, quantity và metadata hiển thị. Checkout hiện chỉ lưu form trong bộ nhớ đến khi hiển thị confirmation; không gửi dữ liệu ra ngoài.
+Cart item là snapshot nhỏ để hiển thị và persist trên trình duyệt: product/variant
+identifiers, format, size, grind, unit price, quantity và metadata. Khi bật
+checkout server, request chỉ gửi `productId`, `variantId`, grind và quantity;
+backend tính lại giá từ PostgreSQL rồi lưu đơn COD `demo-confirmed`. Không thu dữ
+liệu thẻ hoặc gửi yêu cầu giao vận thật.
 
 ## Quy tắc truy cập
 

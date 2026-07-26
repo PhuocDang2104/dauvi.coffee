@@ -11,6 +11,15 @@ export const API_ENDPOINTS = {
   advisor: {
     recommendations: "/advisor/recommendations",
   },
+  assistant: {
+    message: "/assistant/messages",
+  },
+  auth: {
+    login: "/auth/login",
+    register: "/auth/register",
+    session: "/auth/session",
+    logout: "/auth/logout",
+  },
   cart: {
     detail: "/cart",
     items: "/cart/items",
@@ -20,4 +29,3 @@ export const API_ENDPOINTS = {
     create: "/orders",
   },
 } as const;
-

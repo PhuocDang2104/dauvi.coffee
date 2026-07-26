@@ -15,11 +15,13 @@ import {
   useCartHydrated,
   useCartStore,
 } from "@/features/cart/stores/use-cart-store";
+import { isServerCheckoutEnabled } from "@/lib/data-source/feature-flags";
 import { checkoutSchema } from "../domain/checkout.schema";
 import type {
   CheckoutFormValues,
   DemoOrderConfirmation,
 } from "../domain/checkout.types";
+import { createDemoOrder } from "../services/create-demo-order";
 import { CheckoutField } from "./checkout-field";
 import { CheckoutProgress } from "./checkout-progress";
 import { CheckoutSuccess } from "./checkout-success";
@@ -33,9 +35,12 @@ export function CheckoutForm() {
     useState<DemoOrderConfirmation | null>(null);
   const subtotal = calculateCartSubtotal(items);
   const shippingFee = calculateShippingFee(subtotal);
+  const serverCheckoutEnabled = isServerCheckoutEnabled();
   const {
     register,
     handleSubmit,
+    clearErrors,
+    setError,
     formState: { errors, isSubmitting },
   } = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
@@ -54,19 +59,43 @@ export function CheckoutForm() {
     },
   });
 
-  const submitDemoOrder = (values: CheckoutFormValues) => {
-    // TODO(backend): Replace local checkout with POST /api/v1/orders.
-    setConfirmation({
-      recipientName: values.fullName,
-      itemCount: calculateCartQuantity(items),
-      total: subtotal + shippingFee,
-    });
-    clearCart();
+  const submitDemoOrder = async (values: CheckoutFormValues) => {
+    clearErrors("root.server");
+    try {
+      if (serverCheckoutEnabled) {
+        const order = await createDemoOrder(values, items);
+        setConfirmation({
+          recipientName: order.recipientName,
+          itemCount: order.itemCount,
+          total: order.total,
+          orderCode: order.orderCode,
+          persistedOnServer: true,
+        });
+      } else {
+        setConfirmation({
+          recipientName: values.fullName,
+          itemCount: calculateCartQuantity(items),
+          total: subtotal + shippingFee,
+          persistedOnServer: false,
+        });
+      }
+      clearCart();
+    } catch (error) {
+      setError("root.server", {
+        message:
+          error instanceof Error
+            ? error.message
+            : "Chưa thể tạo đơn trình diễn. Vui lòng thử lại.",
+      });
+    }
   };
 
   if (!hasHydrated) {
     return (
-      <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_25rem]" aria-busy="true">
+      <div
+        className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_25rem]"
+        aria-busy="true"
+      >
         <div className="h-[48rem] animate-pulse rounded-[2rem] bg-[var(--paper-100)] motion-reduce:animate-none" />
         <div className="h-96 animate-pulse rounded-[2rem] bg-[var(--paper-100)] motion-reduce:animate-none" />
         <span className="sr-only">Đang mở thông tin thanh toán…</span>
@@ -92,7 +121,9 @@ export function CheckoutForm() {
           className="mx-auto size-10 text-[var(--forest-600)]"
           aria-hidden="true"
         />
-        <h2 className="mt-5 font-display text-3xl">Chưa có sản phẩm để xác nhận</h2>
+        <h2 className="mt-5 font-display text-3xl">
+          Chưa có sản phẩm để xác nhận
+        </h2>
         <p className="mt-3 leading-7 text-[var(--ink-700)]">
           Hãy chọn một gói cà phê trước khi mở luồng checkout trình diễn.
         </p>
@@ -256,7 +287,9 @@ export function CheckoutForm() {
                 aria-hidden="true"
               />
               <span>
-                <strong className="block">Thanh toán khi nhận hàng (COD)</strong>
+                <strong className="block">
+                  Thanh toán khi nhận hàng (COD)
+                </strong>
                 <span className="mt-1 block text-sm leading-5 text-[var(--ink-500)]">
                   Chế độ mô phỏng — không phát sinh khoản thu thật.
                 </span>
@@ -283,8 +316,11 @@ export function CheckoutForm() {
                 }
               />
               <span id="acceptDemo-note">
-                Tôi hiểu đây là trải nghiệm frontend demo, chưa tạo giao dịch,
-                vận chuyển hoặc đơn hàng thật.
+                Tôi hiểu đây là đơn trình diễn
+                {serverCheckoutEnabled
+                  ? " được lưu trên máy chủ,"
+                  : " chỉ xử lý trên trình duyệt,"}{" "}
+                chưa tạo giao dịch thanh toán hoặc yêu cầu vận chuyển thật.
               </span>
             </label>
             {errors.acceptDemo ? (
@@ -297,6 +333,15 @@ export function CheckoutForm() {
               </p>
             ) : null}
           </fieldset>
+
+          {errors.root?.server ? (
+            <p
+              className="rounded-2xl border border-[color:var(--danger-600)]/30 bg-white p-4 text-sm text-[var(--danger-600)]"
+              role="alert"
+            >
+              {errors.root.server.message}
+            </p>
+          ) : null}
 
           <button
             type="submit"
