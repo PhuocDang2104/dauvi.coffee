@@ -16,6 +16,7 @@ interface HomePathway {
   href: string;
   image: string;
   icon: LucideIcon;
+  details: string[];
 }
 
 const HOME_PATHWAYS: HomePathway[] = [
@@ -25,6 +26,7 @@ const HOME_PATHWAYS: HomePathway[] = [
     href: "/shop",
     image: "/images/home/homecard-1.png",
     icon: SlidersHorizontal,
+    details: ["Độ đậm", "Cách pha", "Ngân sách"],
   },
   {
     title: "Coffee Advisor",
@@ -32,6 +34,7 @@ const HOME_PATHWAYS: HomePathway[] = [
     href: "/advisor",
     image: "/images/home/homecard-2.png",
     icon: MessageCircleMore,
+    details: ["6 bước ngắn", "Top 3 gợi ý"],
   },
   {
     title: "Vùng trồng",
@@ -39,6 +42,7 @@ const HOME_PATHWAYS: HomePathway[] = [
     href: "#vietnam-flavor-map",
     image: "/images/home/homecard-3.png",
     icon: MapPinned,
+    details: ["5 vùng cao nguyên", "Bản đồ tương tác"],
   },
   {
     title: "Best sellers",
@@ -46,6 +50,7 @@ const HOME_PATHWAYS: HomePathway[] = [
     href: "/shop?sort=featured",
     image: "/images/home/homecard-4.png",
     icon: BadgeCheck,
+    details: ["Được chọn nhiều", "Thêm nhanh"],
   },
 ];
 
@@ -65,10 +70,10 @@ export function HomeHero() {
         aria-hidden="true"
       />
 
-      <div className="wide-shell flex min-h-[calc(100svh-7rem)] items-center py-16 lg:py-20">
-        <div className="hero-copy-in relative z-10 max-w-[46rem]">
+      <div className="shell flex min-h-[calc(100svh-7rem)] items-center py-16 lg:py-20">
+        <div className="hero-copy-in relative z-10 max-w-[41rem]">
           <p className="eyebrow">Vietnam Traceable Coffee Collection</p>
-          <h1 className="display-heading mt-6 max-w-[42rem]">Cà phê Việt Nam, được kể đến từng lô.</h1>
+          <h1 className="mt-6 max-w-[39rem] font-display text-[clamp(3rem,5.2vw,4.75rem)] font-medium leading-[.98] tracking-[-.045em] text-balance">Cà phê Việt Nam, được kể đến từng lô.</h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-ink-700 md:text-lg md:leading-8">
             Từ cao nguyên Việt Nam đến tách cà phê tại nhà — chọn theo vùng, vị và hành trình truy xuất.
           </p>
@@ -95,14 +100,14 @@ export function HomeHero() {
 
 export function CollectionOverview() {
   return (
-    <section id="collection-overview" className="wide-shell py-8 md:py-12">
+    <section id="collection-overview" className="shell scroll-mt-40 py-10 md:py-14 lg:scroll-mt-28">
       <h2 className="sr-only">Khám phá DẤU VỊ theo nhu cầu của bạn</h2>
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        {HOME_PATHWAYS.map(({ title, description, href, image, icon: Icon }, index) => (
+      <div className="grid gap-4 sm:grid-cols-2 xl:flex xl:min-h-[18rem]">
+        {HOME_PATHWAYS.map(({ title, description, href, image, icon: Icon, details }, index) => (
           <Link
             key={title}
             href={href}
-            className="group relative isolate flex min-h-[12.5rem] overflow-hidden rounded-[1.35rem] border border-basalt-900/10 p-5 shadow-[0_12px_34px_rgba(24,26,24,.09)] transition duration-500 hover:-translate-y-1.5 hover:border-honey-500/35 hover:shadow-[0_24px_55px_rgba(24,26,24,.16)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-500 focus-visible:ring-offset-2"
+            className="group relative isolate flex min-h-[16rem] overflow-hidden rounded-[1.45rem] border border-basalt-900/10 p-6 shadow-[0_14px_38px_rgba(24,26,24,.09)] transition-[flex,transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,.8,.25,1)] hover:-translate-y-1.5 hover:border-honey-500/40 hover:shadow-[0_28px_64px_rgba(24,26,24,.16)] focus-visible:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-500 focus-visible:ring-offset-2 xl:min-w-0 xl:flex-1 xl:basis-0 xl:hover:flex-[1.65] xl:focus-visible:flex-[1.65]"
           >
             <Image
               src={image}
@@ -116,12 +121,17 @@ export function CollectionOverview() {
               aria-hidden="true"
             />
 
-            <div className="flex w-[68%] flex-col items-start">
+            <div className="flex w-[74%] flex-col items-start xl:w-[82%]">
               <span className="grid size-10 place-items-center rounded-full bg-forest-950 text-honey-500 shadow-[0_8px_22px_rgba(16,42,32,.2)] transition duration-500 group-hover:-rotate-6 group-hover:scale-105">
                 <Icon aria-hidden="true" size={17} strokeWidth={1.8} />
               </span>
-              <h3 className="mt-5 font-display text-xl font-semibold tracking-[-0.025em] text-ink-950">{title}</h3>
-              <p className="mt-1.5 text-xs leading-5 text-ink-700">{description}</p>
+              <h3 className="mt-7 font-display text-[1.35rem] font-semibold tracking-[-0.025em] text-ink-950">{title}</h3>
+              <p className="mt-2 max-w-[15rem] text-xs leading-5 text-ink-700">{description}</p>
+              <div className="mt-3 flex max-h-16 flex-wrap gap-1.5 overflow-hidden opacity-100 transition-all duration-500 xl:max-h-0 xl:translate-y-2 xl:opacity-0 xl:group-hover:max-h-16 xl:group-hover:translate-y-0 xl:group-hover:opacity-100 xl:group-focus-visible:max-h-16 xl:group-focus-visible:translate-y-0 xl:group-focus-visible:opacity-100">
+                {details.map((detail) => (
+                  <span key={detail} className="rounded-full border border-forest-950/12 bg-mist-50/70 px-2.5 py-1 text-[0.6rem] font-bold text-forest-950 backdrop-blur-sm">{detail}</span>
+                ))}
+              </div>
             </div>
 
             <span className="absolute bottom-4 right-4 grid size-10 place-items-center rounded-full bg-mist-50 text-forest-950 shadow-[0_8px_24px_rgba(24,26,24,.14)] transition duration-300 group-hover:translate-x-1 group-hover:bg-forest-950 group-hover:text-white">

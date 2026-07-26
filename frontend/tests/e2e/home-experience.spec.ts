@@ -12,20 +12,39 @@ test("homepage dùng banner, bốn card và flavor map tương tác", async ({ p
     await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
   }
 
+  const pathwayCards = page.locator("#collection-overview > div > a");
+  await expect(pathwayCards).toHaveCount(4);
+  await pathwayCards.first().hover();
+  await page.waitForTimeout(650);
+  const activeCard = await pathwayCards.nth(0).boundingBox();
+  const restingCard = await pathwayCards.nth(1).boundingBox();
+  expect(activeCard?.width ?? 0).toBeGreaterThan((restingCard?.width ?? 0) + 70);
+  await expect(pathwayCards.first().getByText("Độ đậm", { exact: true })).toBeVisible();
+
   const langbiangMarker = page.getByRole("button", { name: "Langbiang, Arabica, 1.500–1.700 m" });
   await langbiangMarker.scrollIntoViewIfNeeded();
   await langbiangMarker.hover();
-  await expect(page.getByRole("heading", { name: "Langbiang", exact: true })).toBeVisible();
+  await expect(page.locator("#vietnam-flavor-map").getByRole("heading", { name: "Langbiang", exact: true }).first()).toBeVisible();
   await expect(page.locator("#vietnam-flavor-map").getByRole("link", { name: "Bourbon Langbiang Honey" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Gói cà phê Bourbon Honey từ Langbiang" })).toBeVisible();
 });
 
 test("chatbot nổi trả gợi ý local mà không gọi backend", async ({ page }) => {
   await page.goto("/");
+  const before = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    headingLeft: document.querySelector("h1")?.getBoundingClientRect().left,
+  }));
   await page.getByRole("button", { name: "Mở trợ lý cà phê DẤU VỊ" }).click();
   await expect(page.getByRole("dialog", { name: "DẤU VỊ Coffee Assistant" })).toBeVisible();
+  const after = await page.evaluate(() => ({
+    clientWidth: document.documentElement.clientWidth,
+    headingLeft: document.querySelector("h1")?.getBoundingClientRect().left,
+  }));
+  expect(after).toEqual(before);
   await page.getByRole("button", { name: "Tìm cà phê pha phin" }).click();
   await expect(page.getByText(/TRS1 dễ tiếp cận/)).toBeVisible();
-  await expect(page.getByRole("link", { name: /Xem TR4/ })).toBeVisible();
+  await expect(page.getByRole("dialog", { name: "DẤU VỊ Coffee Assistant" }).getByRole("link", { name: "Xem TR4", exact: true })).toBeVisible();
 });
 
 test("login và register validate trước khi nối auth backend", async ({ page }) => {

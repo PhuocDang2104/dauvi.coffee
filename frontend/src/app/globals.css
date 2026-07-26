@@ -222,6 +222,10 @@ a {
   animation: map-detail-in 240ms ease-out both;
 }
 
+.map-visual-in {
+  animation: map-visual-in 320ms cubic-bezier(.22,.8,.25,1) both;
+}
+
 @keyframes pack-float {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50% { transform: translateY(-10px) rotate(1deg); }
@@ -235,6 +239,11 @@ a {
 @keyframes map-detail-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes map-visual-in {
+  from { opacity: 0; transform: translateX(10px) scale(.99); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
 }
 
 .lot-code {

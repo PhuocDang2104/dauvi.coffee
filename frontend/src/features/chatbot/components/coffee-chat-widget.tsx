@@ -3,7 +3,8 @@
 import * as Dialog from "@radix-ui/react-dialog";
 import Link from "next/link";
 import { ArrowUpRight, Bot, Coffee, Send, Sparkles, X } from "lucide-react";
-import { FormEvent, useId, useRef, useState } from "react";
+import { FormEvent, useEffect, useId, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import type { ChatbotResponse } from "../domain/chatbot.schema";
 import { getCoffeeAssistantResponse } from "../services/get-coffee-assistant-response";
 
@@ -22,12 +23,21 @@ const INITIAL_MESSAGE: ChatMessage = {
 };
 
 export function CoffeeChatWidget() {
+  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
+  const [hasClearedHero, setHasClearedHero] = useState(false);
   const nextId = useRef(2);
   const descriptionId = useId();
+
+  useEffect(() => {
+    const updatePosition = () => setHasClearedHero(window.scrollY > 140);
+    updatePosition();
+    window.addEventListener("scroll", updatePosition, { passive: true });
+    return () => window.removeEventListener("scroll", updatePosition);
+  }, []);
 
   async function sendMessage(rawMessage: string) {
     const message = rawMessage.trim();
@@ -60,12 +70,14 @@ export function CoffeeChatWidget() {
     void sendMessage(input);
   }
 
+  if (pathname.startsWith("/checkout") || pathname.startsWith("/login") || pathname.startsWith("/register")) return null;
+
   return (
-    <Dialog.Root open={open} onOpenChange={setOpen}>
+    <Dialog.Root modal={false} open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
         <button
           type="button"
-          className="group fixed bottom-[5.6rem] right-3 z-[60] grid size-14 place-items-center rounded-full border border-honey-500/35 bg-forest-950 text-honey-500 shadow-[0_16px_45px_rgba(16,42,32,.32)] transition duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-500 focus-visible:ring-offset-2 lg:bottom-6 lg:right-6 lg:size-16"
+          className={`group fixed bottom-[5.6rem] right-3 z-[60] grid size-14 place-items-center rounded-full border border-honey-500/35 bg-forest-950 text-honey-500 shadow-[0_16px_45px_rgba(16,42,32,.32)] transition duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-forest-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-500 focus-visible:ring-offset-2 lg:bottom-6 lg:right-6 lg:size-16 ${pathname === "/" && !hasClearedHero ? "max-lg:pointer-events-none max-lg:translate-y-3 max-lg:opacity-0" : ""}`}
           aria-label="Mở trợ lý cà phê DẤU VỊ"
         >
           <span className="absolute inset-0 rounded-full border border-honey-500/30 motion-safe:animate-ping motion-reduce:animate-none" aria-hidden="true" />
@@ -75,7 +87,6 @@ export function CoffeeChatWidget() {
       </Dialog.Trigger>
 
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-[69] bg-forest-950/20 backdrop-blur-[1px] data-[state=closed]:animate-out data-[state=open]:animate-in motion-reduce:animate-none lg:bg-transparent lg:backdrop-blur-none" />
         <Dialog.Content
           aria-describedby={descriptionId}
           className="fixed inset-x-3 bottom-[5.35rem] z-[70] flex max-h-[min(70dvh,38rem)] flex-col overflow-hidden rounded-[1.6rem] border border-white/10 bg-mist-50 shadow-[0_28px_90px_rgba(16,42,32,.35)] outline-none data-[state=closed]:animate-out data-[state=open]:animate-in motion-reduce:animate-none sm:left-auto sm:right-5 sm:w-[25rem] lg:bottom-6"

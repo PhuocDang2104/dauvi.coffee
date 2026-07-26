@@ -14,6 +14,8 @@ interface FlavorRegion {
   description: string;
   product: string;
   href: string;
+  image: string;
+  imageAlt: string;
 }
 
 const FLAVOR_REGIONS: FlavorRegion[] = [
@@ -26,6 +28,8 @@ const FLAVOR_REGIONS: FlavorRegion[] = [
     description: "Body dày, chocolate đen và hạt rang — một cấu trúc vị sinh ra cho phin Việt.",
     product: "TRS1 Daily Phin",
     href: "/shop/trs1-tay-nguyen-daily-phin",
+    image: "/images/products/trs1-daily-phin-pack.png",
+    imageAlt: "Gói cà phê TRS1 Daily Phin từ Gia Lai",
   },
   {
     id: "dak-lak",
@@ -36,6 +40,8 @@ const FLAVOR_REGIONS: FlavorRegion[] = [
     description: "Tâm điểm Robusta với phổ vị cacao, caramel và độ đậm rõ nét từ Natural đến Honey.",
     product: "TR4 Traceable Robusta",
     href: "/shop/tr4-dak-lak-traceable-robusta",
+    image: "/images/products/tr4-dak-lak-pack.png",
+    imageAlt: "Gói cà phê TR4 Traceable Robusta từ Đắk Lắk",
   },
   {
     id: "bao-lam",
@@ -46,6 +52,8 @@ const FLAVOR_REGIONS: FlavorRegion[] = [
     description: "Độ cao và sơ chế Honey tạo nên một tách Robusta tròn, ngọt và giàu hương quả chín.",
     product: "Xanh Lùn TS5 Honey",
     href: "/shop/xanh-lun-ts5-bao-lam-honey",
+    image: "/images/products/xanh-lun-ts5-pack.png",
+    imageAlt: "Gói cà phê Xanh Lùn TS5 Honey từ Bảo Lâm",
   },
   {
     id: "da-lat",
@@ -56,6 +64,8 @@ const FLAVOR_REGIONS: FlavorRegion[] = [
     description: "Không khí mát và độ cao mở ra hương cam, caramel cùng hậu vị trà đen cân bằng.",
     product: "Catimor Đà Lạt Washed",
     href: "/shop/catimor-da-lat-washed",
+    image: "/images/products/catimor-da-lat-pack.png",
+    imageAlt: "Gói cà phê Catimor Washed từ Đà Lạt",
   },
   {
     id: "langbiang",
@@ -66,6 +76,8 @@ const FLAVOR_REGIONS: FlavorRegion[] = [
     description: "Vùng cao cho Bourbon thanh mượt, nổi bật mật ong, cam ngọt và hạnh nhân.",
     product: "Bourbon Langbiang Honey",
     href: "/shop/bourbon-langbiang-honey",
+    image: "/images/products/bourbon-langbiang-pack.png",
+    imageAlt: "Gói cà phê Bourbon Honey từ Langbiang",
   },
 ];
 
@@ -80,9 +92,9 @@ export function InteractiveFlavorMap() {
   const activeRegion = FLAVOR_REGIONS.find((region) => region.id === activeId) ?? FLAVOR_REGIONS[0];
 
   return (
-    <section id="vietnam-flavor-map" className="overflow-hidden border-y border-white/10 bg-forest-950 py-16 text-mist-50 md:py-24 lg:py-28">
-      <div className="wide-shell grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center xl:gap-20">
-        <div className="relative mx-auto w-full max-w-[34rem]">
+    <section id="vietnam-flavor-map" className="scroll-mt-40 overflow-hidden border-y border-white/10 bg-forest-950 py-16 text-mist-50 md:py-20 lg:scroll-mt-28 lg:py-24">
+      <div className="shell grid gap-10 lg:grid-cols-[.88fr_1.12fr] lg:items-center xl:gap-14">
+        <div className="relative mx-auto w-full max-w-[31rem]">
           <div className="relative aspect-[2/3] overflow-hidden rounded-[1.65rem] border border-honey-500/20 bg-paper-100 shadow-[0_34px_90px_rgba(0,0,0,.3)]">
             <Image
               src="/images/home/dauvi-map.png"
@@ -117,16 +129,18 @@ export function InteractiveFlavorMap() {
               );
             })}
 
-            <article key={activeRegion.id} className="map-detail-in absolute inset-x-3 bottom-3 z-10 rounded-[1.15rem] border border-white/15 bg-forest-950/94 p-4 text-white shadow-[0_18px_45px_rgba(0,0,0,.24)] backdrop-blur-md sm:inset-x-5 sm:bottom-5 sm:p-5">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.16em] text-honey-500">{activeRegion.species} · {activeRegion.altitude}</p>
-                  <h3 className="mt-1 font-display text-2xl font-semibold">{activeRegion.name}</h3>
+            <article key={activeRegion.id} className="map-detail-in absolute inset-x-3 top-3 z-10 rounded-[1.15rem] border border-white/15 bg-forest-950/94 p-3.5 text-white shadow-[0_18px_45px_rgba(0,0,0,.24)] backdrop-blur-md sm:left-5 sm:right-auto sm:top-5 sm:w-[calc(100%-2.5rem)] sm:p-4">
+              <div className="flex items-start gap-3">
+                <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-paper-100 shadow-inner sm:size-[4.5rem]">
+                  <Image src={activeRegion.image} alt="" fill sizes="72px" className="object-contain mix-blend-multiply" />
                 </div>
-                <span className="grid size-9 shrink-0 place-items-center rounded-full bg-white/10 text-honey-500"><MapPin aria-hidden="true" size={16} /></span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.16em] text-honey-500">{activeRegion.species} · {activeRegion.altitude}</p>
+                  <h3 className="mt-1 font-display text-xl font-semibold sm:text-2xl">{activeRegion.name}</h3>
+                  <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-sand-200 sm:text-xs">{activeRegion.description}</p>
+                </div>
               </div>
-              <p className="mt-2 text-xs leading-5 text-sand-200 sm:text-sm sm:leading-6">{activeRegion.description}</p>
-              <Link href={activeRegion.href} className="mt-3 inline-flex min-h-10 items-center gap-2 text-xs font-bold text-white underline decoration-honey-500/45 underline-offset-4">
+              <Link href={activeRegion.href} className="mt-2 inline-flex min-h-9 items-center gap-2 text-[0.68rem] font-bold text-white underline decoration-honey-500/45 underline-offset-4">
                 {activeRegion.product} <ArrowUpRight aria-hidden="true" size={14} />
               </Link>
             </article>
@@ -136,31 +150,29 @@ export function InteractiveFlavorMap() {
         <div>
           <p className="eyebrow !text-honey-500">Vietnam Flavor Map</p>
           <div className="mt-4 h-px w-12 bg-honey-500" aria-hidden="true" />
-          <h2 className="section-heading mt-6 max-w-[36rem] text-[clamp(2.75rem,5vw,5.2rem)] text-paper-100">Một bản đồ, nhiều sắc thái cà phê</h2>
-          <p className="mt-7 max-w-lg text-base leading-7 text-sand-200/80">
+          <h2 className="mt-6 max-w-[32rem] font-display text-[clamp(2.65rem,4.4vw,4rem)] font-medium leading-[1.02] tracking-[-.04em] text-paper-100 text-balance">Một bản đồ, nhiều sắc thái cà phê</h2>
+          <p className="mt-5 max-w-md text-sm leading-6 text-sand-200/80">
             Mỗi vùng đất, một độ cao, một khí hậu và một câu chuyện hương vị. Chạm vào từng điểm để khám phá.
           </p>
 
-          <div className="mt-9 grid gap-2 sm:grid-cols-2">
-            {FLAVOR_REGIONS.map((region) => {
-              const active = region.id === activeId;
-              return (
-                <button
-                  key={region.id}
-                  type="button"
-                  onMouseEnter={() => setActiveId(region.id)}
-                  onFocus={() => setActiveId(region.id)}
-                  onClick={() => setActiveId(region.id)}
-                  className={`flex min-h-14 items-center justify-between rounded-xl border px-4 text-left transition duration-300 ${active ? "border-honey-500/45 bg-white/10 shadow-[0_12px_32px_rgba(0,0,0,.16)]" : "border-white/10 bg-white/[.04] hover:border-white/25 hover:bg-white/[.07]"}`}
-                >
-                  <span className="font-display text-lg font-semibold">{region.name}</span>
-                  <span className="text-right text-[0.65rem] font-bold uppercase tracking-[0.08em] text-sand-200/70">{region.species}<br />{region.altitude}</span>
-                </button>
-              );
-            })}
-          </div>
+          <article key={`visual-${activeRegion.id}`} className="map-visual-in relative mt-7 aspect-[16/8.7] overflow-hidden rounded-[1.5rem] border border-honey-500/20 bg-paper-100 shadow-[0_26px_68px_rgba(0,0,0,.22)]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_45%,rgba(199,150,72,.22),transparent_36%),linear-gradient(110deg,#f3eee4_0%,#eee4d4_100%)]" aria-hidden="true" />
+            <Image
+              src={activeRegion.image}
+              alt={activeRegion.imageAlt}
+              fill
+              sizes="(max-width: 1023px) 90vw, 46vw"
+              className="object-contain object-[78%_center] mix-blend-multiply"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-paper-100 via-paper-100/65 to-transparent" aria-hidden="true" />
+            <div className="absolute inset-y-0 left-0 flex w-[48%] flex-col justify-center p-5 sm:p-7">
+              <p className="text-[0.58rem] font-extrabold uppercase tracking-[0.15em] text-clay-500">{activeRegion.species} · {activeRegion.altitude}</p>
+              <h3 className="mt-2 font-display text-3xl font-semibold text-forest-950 sm:text-4xl">{activeRegion.name}</h3>
+              <p className="mt-2 text-xs font-bold leading-5 text-ink-700">{activeRegion.product}</p>
+            </div>
+          </article>
 
-          <div className="mt-10 grid grid-cols-3 gap-3 border-t border-white/10 pt-8">
+          <div className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-7">
             {MAP_VALUES.map(({ icon: Icon, label, value }) => (
               <div key={label} className="text-center">
                 <span className="mx-auto grid size-12 place-items-center rounded-full border border-honey-500/65 text-honey-500 shadow-[inset_0_0_24px_rgba(199,150,72,.08)] sm:size-14">
