@@ -1,51 +1,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Product } from "@/features/products/domain/product.types";
-import type { CoffeeLot } from "@/features/traceability/domain/traceability.types";
-import { ProcessTimeline } from "@/features/traceability/components/process-timeline";
-import { EvidencePill } from "@/features/traceability/components/transparency-table";
 
-export function TraceabilitySpotlight({ product, lot }: { product: Product; lot: CoffeeLot }) {
-  return (
-    <section className="section-space bg-paper-100">
-      <div className="shell">
-        <div className="max-w-3xl">
-          <p className="eyebrow">Traceability spotlight</p>
-          <h2 className="section-heading mt-4">Theo dấu từ vùng trồng đến ngày rang</h2>
-        </div>
-
-        <div className="topo-surface mt-12 overflow-hidden rounded-[2rem] border border-forest-950/15 bg-mist-50">
-          <div className="grid lg:grid-cols-[.38fr_.62fr]">
-            <div className="bg-forest-950 p-7 text-white md:p-10">
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-xs font-bold uppercase tracking-[0.16em] text-sand-200">Coffee passport</p>
-                <EvidencePill level={lot.evidenceLevel} />
-              </div>
-              <p className="lot-code mt-9 text-xl font-bold leading-8">{lot.lotCode}</p>
-              <p className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em]">{product.shortName}</p>
-              <dl className="mt-8 space-y-4 border-t border-white/15 pt-6 text-sm">
-                <div className="flex justify-between gap-4"><dt className="text-sand-200">Vùng</dt><dd className="font-bold">{product.regionLabel}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-sand-200">Niên vụ</dt><dd className="font-bold">{lot.harvestYear}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-sand-200">Sơ chế</dt><dd className="font-bold capitalize">{lot.process}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="text-sand-200">Ngày rang</dt><dd className="lot-code text-xs font-bold">{lot.roastDate}</dd></div>
-              </dl>
-              <div className="mt-8 flex flex-wrap gap-3">
-                <Link href="/traceability" className="button-primary !bg-mist-50 !text-forest-950">Tra cứu mã lô</Link>
-                <Link href={`/traceability/${lot.lotCode}`} className="button-secondary !border-white/30 !text-white">Mở passport</Link>
-              </div>
-            </div>
-            <div className="p-6 md:p-10">
-              <ProcessTimeline events={lot.timeline} compact />
-              <p className="mt-6 rounded-xl border border-clay-500/25 bg-clay-500/5 p-4 text-sm leading-6 text-roast-700">
-                <strong>Demo Data:</strong> Dữ liệu lô đang được mô phỏng cho mục đích trình diễn đồ án.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
+export { TraceabilityCarousel as TraceabilitySpotlight } from "./traceability-carousel";
 
 export function TasteSpectrum({ products }: { products: Product[] }) {
   return (

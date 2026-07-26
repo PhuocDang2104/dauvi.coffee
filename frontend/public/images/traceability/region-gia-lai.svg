@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Minh họa vùng cà phê Gia Lai</title><desc id="desc">Đồi cao nguyên xanh lam rêu với các đường địa hình trừu tượng.</desc>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#78979a"/><stop offset="1" stop-color="#163b32"/></linearGradient><filter id="blur"><feGaussianBlur stdDeviation="35"/></filter></defs>
+  <path fill="url(#bg)" d="M0 0h1600v1000H0z"/><circle cx="1260" cy="180" r="210" fill="#d0ad68" opacity=".22" filter="url(#blur)"/>
+  <path d="M0 720 260 510l190 96 270-250 240 210 210-160 430 280v314H0z" fill="#315f52" opacity=".9"/><path d="M0 805 310 630l250 110 250-185 300 210 250-100 240 120v215H0z" fill="#173a31"/>
+  <g fill="none" stroke="#e9dfca" stroke-width="3" opacity=".22"><path d="M-40 330c270-150 470 180 760 6s500-130 900 50"/><path d="M-20 390c270-145 480 190 770 12s510-110 900 60"/><path d="M0 450c270-130 490 200 780 18s520-90 900 70"/></g>
+</svg>

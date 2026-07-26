@@ -100,8 +100,10 @@ export function HomeHero() {
 
 export function CollectionOverview() {
   return (
-    <section id="collection-overview" className="relative scroll-mt-40 overflow-hidden bg-[linear-gradient(180deg,#faf8f2_0%,#edf3f2_43%,#bfd3d3_78%,#102a20_100%)] pb-20 pt-10 md:pb-28 md:pt-14 lg:scroll-mt-28">
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-[radial-gradient(ellipse_at_50%_100%,rgba(38,87,91,.42),transparent_68%)]" aria-hidden="true" />
+    <section id="collection-overview" className="relative scroll-mt-40 overflow-hidden border-y border-white/10 bg-forest-950 py-16 lg:scroll-mt-28 lg:py-20">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(105,157,163,.24),transparent_31%),radial-gradient(circle_at_86%_88%,rgba(199,150,72,.11),transparent_28%)]" aria-hidden="true" />
+      <div className="pointer-events-none absolute inset-0 bg-[url('/patterns/contour-lines.svg')] bg-cover bg-center opacity-[.075] mix-blend-screen" aria-hidden="true" />
+      <div className="pointer-events-none absolute left-[8%] top-8 h-px w-[42%] bg-gradient-to-r from-transparent via-white/20 to-transparent" aria-hidden="true" />
       <div className="shell relative">
         <h2 className="sr-only">Khám phá DẤU VỊ theo nhu cầu của bạn</h2>
         <div className="home-pathways grid gap-4 sm:grid-cols-2 xl:flex xl:min-h-[18rem]">

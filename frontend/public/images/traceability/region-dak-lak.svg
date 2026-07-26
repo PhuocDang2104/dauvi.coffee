@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Minh họa vùng cà phê Đắk Lắk</title><desc id="desc">Cao nguyên bazan nâu đỏ và rừng xanh với lớp sương nhẹ.</desc>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#956f62"/><stop offset=".52" stop-color="#496d65"/><stop offset="1" stop-color="#102a20"/></linearGradient></defs>
+  <path fill="url(#bg)" d="M0 0h1600v1000H0z"/><circle cx="1280" cy="185" r="175" fill="#e7c27b" opacity=".28"/>
+  <path d="M0 650 250 520l210 95 230-280 270 245 235-175 405 245v350H0z" fill="#274f43" opacity=".92"/><path d="M0 790 280 640l260 120 270-180 260 185 300-115 230 130v220H0z" fill="#15362d"/>
+  <g fill="none" stroke="#f3e8d2" stroke-width="3" opacity=".2"><path d="M-30 260c250-120 420 150 700 10s560-160 960 55"/><path d="M-20 320c260-115 430 160 710 20s570-145 960 65"/><path d="M-10 380c270-105 440 170 720 30s580-130 960 75"/></g>
+</svg>

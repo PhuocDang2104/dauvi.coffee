@@ -3,6 +3,9 @@ import type { z } from "zod";
 import { apiRequest, type QueryParameters } from "./request";
 
 export function getApiBaseUrl(): string {
+  if (typeof window === "undefined" && process.env.API_BASE_URL) {
+    return process.env.API_BASE_URL;
+  }
   return process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000/api/v1";
 }
 

@@ -10,16 +10,13 @@ export default async function HomePage() {
     repositories.products.getFeatured(),
     repositories.traceability.listFeaturedLots(),
   ]);
-  const spotlightLot = lots.find((lot) => lot.lotCode === "TR4-DLK-26-N02") ?? lots[0];
-  const spotlightProduct = products.find((product) => product.id === spotlightLot.productId) ?? products[0];
-
   return (
     <main id="main-content">
       <HomeHero />
       <CollectionOverview />
       <FlavorMapSection />
       <FeaturedProductsSection products={products} />
-      <TraceabilitySpotlight product={spotlightProduct} lot={spotlightLot} />
+      <TraceabilitySpotlight products={products} lots={lots} />
       <TasteSpectrum products={products} />
       <AdvisorCallout />
       <HonestSustainability />

@@ -222,12 +222,15 @@ Gửi lại cùng `Idempotency-Key` trả cùng đơn, không tạo bản ghi tr
 lưu đơn trình diễn; không thu dữ liệu thẻ, không gọi vận chuyển và không trừ tồn
 kho.
 
-## Authentication — contract đã nối ở frontend, backend chưa triển khai
+## Authentication
 
-Frontend bật luồng thật bằng `NEXT_PUBLIC_ENABLE_AUTH=true`. Backend phải dùng
+Frontend bật luồng thật bằng `NEXT_PUBLIC_ENABLE_AUTH=true`. Backend dùng
 cookie phiên `HttpOnly; Secure; SameSite=Lax` (hoặc `SameSite=None` khi frontend
 và API thực sự cross-site), không trả access token để frontend lưu vào
 `localStorage`. Mọi request auth dùng `credentials: include`.
+
+Backend đã triển khai session PostgreSQL, Argon2id, rotation khi đăng nhập,
+kiểm tra Origin và rate limit theo email + IP đã băm.
 
 ```http
 POST /auth/register
@@ -239,7 +242,7 @@ POST /auth/logout
 Body đăng ký:
 
 ```ts
-{ fullName: string; email: string; password: string }
+{ fullName: string; email: string; password: string; acceptTerms: true }
 ```
 
 Body đăng nhập:
@@ -254,13 +257,12 @@ Response cho register/login/session:
 { user: { id: string; email: string; fullName: string } }
 ```
 
-Backend cần hash mật khẩu bằng Argon2id, rotate session, rate-limit login,
-invalidate cookie khi logout và không log password/cookie. CORS phải dùng danh
-sách origin chính xác và `allow_credentials=true`.
+Backend không log password/cookie. Khi deploy Vercel, frontend gọi endpoint qua
+same-origin rewrite `/backend-api`; CORS vẫn giữ danh sách origin chính xác.
 
-## Coffee Assistant — contract dự phòng
+## Coffee Assistant
 
-Frontend mặc định dùng rule set local. Khi bật
+Backend đã có rule set catalog-aware. Frontend mặc định dùng rule set local; khi bật
 `NEXT_PUBLIC_ENABLE_CHATBOT_API=true`, widget gọi:
 
 ```http
@@ -276,8 +278,8 @@ Body `{ "message": string }`; response:
 }
 ```
 
-Backend AI/RAG phải giới hạn action trong route nội bộ đã cho phép và giữ
-catalog/evidence guardrail; không tự tạo claim sản phẩm hoặc môi trường.
+Response hiện không gọi LLM, chỉ trả action route nội bộ tồn tại trong catalog và
+không tự tạo claim sản phẩm hoặc môi trường.
 
 ## Healthcheck
 

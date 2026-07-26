@@ -229,6 +229,79 @@ class OrderOut(ApiModel):
     created_at: datetime
 
 
+class AuthUserOut(ApiModel):
+    id: str
+    email: str
+    full_name: str
+
+
+class AuthSessionOut(ApiModel):
+    user: AuthUserOut
+
+
+class RegisterIn(ApiModel):
+    full_name: str = Field(min_length=2, max_length=160)
+    email: str = Field(min_length=5, max_length=255)
+    password: str = Field(min_length=8, max_length=128)
+    accept_terms: Literal[True]
+
+    @field_validator("full_name")
+    @classmethod
+    def normalize_name(cls, value: str) -> str:
+        normalized = " ".join(value.strip().split())
+        if len(normalized) < 2:
+            raise ValueError("Vui lòng nhập họ và tên.")
+        return normalized
+
+    @field_validator("email")
+    @classmethod
+    def normalize_registration_email(cls, value: str) -> str:
+        normalized = value.strip().lower()
+        if not re.fullmatch(r"[^\s@]+@[^\s@]+\.[^\s@]+", normalized):
+            raise ValueError("Email chưa đúng định dạng.")
+        return normalized
+
+    @field_validator("password")
+    @classmethod
+    def validate_registration_password(cls, value: str) -> str:
+        if not re.search(r"[A-Za-zÀ-ỹ]", value) or not re.search(r"\d", value):
+            raise ValueError("Mật khẩu cần có ít nhất một chữ cái và một chữ số.")
+        return value
+
+
+class LoginIn(ApiModel):
+    email: str = Field(min_length=5, max_length=255)
+    password: str = Field(min_length=8, max_length=128)
+    remember: bool = False
+
+    @field_validator("email")
+    @classmethod
+    def normalize_login_email(cls, value: str) -> str:
+        return value.strip().lower()
+
+
+class AssistantMessageIn(ApiModel):
+    message: str = Field(min_length=1, max_length=240)
+
+    @field_validator("message")
+    @classmethod
+    def normalize_message(cls, value: str) -> str:
+        normalized = " ".join(value.strip().split())
+        if not normalized:
+            raise ValueError("Tin nhắn không được để trống.")
+        return normalized
+
+
+class AssistantActionOut(ApiModel):
+    label: str
+    href: str
+
+
+class AssistantResponse(ApiModel):
+    message: str
+    actions: list[AssistantActionOut] = Field(default_factory=list, max_length=3)
+
+
 class ErrorResponse(ApiModel):
     message: str
     code: str | None = None

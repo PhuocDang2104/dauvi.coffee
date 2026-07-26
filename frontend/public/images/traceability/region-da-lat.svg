@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Minh họa vùng cà phê Đà Lạt</title><desc id="desc">Núi cao xanh sương và thung lũng sáng của vùng Arabica Đà Lạt.</desc>
+  <defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b4c5c1"/><stop offset=".48" stop-color="#63827d"/><stop offset="1" stop-color="#1e4038"/></linearGradient></defs>
+  <path fill="url(#bg)" d="M0 0h1600v1000H0z"/><circle cx="1260" cy="170" r="190" fill="#f4d9a2" opacity=".3"/>
+  <path d="M0 700 260 400l180 180 240-330 285 335 190-235 445 330v320H0z" fill="#4f716c"/><path d="M0 820 300 610l240 160 280-250 260 250 285-150 235 170v210H0z" fill="#244b42"/>
+  <g fill="none" stroke="#f7f0df" stroke-width="3" opacity=".24"><path d="M-30 250c230-130 430 150 690 10s570-180 980 45"/><path d="M-20 315c240-120 440 160 700 20s580-160 980 60"/><path d="M-10 380c250-110 450 170 710 30s590-140 980 75"/></g>
+</svg>

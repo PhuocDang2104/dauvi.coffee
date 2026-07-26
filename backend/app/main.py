@@ -36,7 +36,7 @@ app.add_middleware(
     # Required by the reserved /auth contract, which uses Secure HttpOnly cookies.
     # Origins remain an explicit allow-list from CORS_ORIGINS; never use "*" here.
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Accept", "Content-Type", "Idempotency-Key", "X-Request-ID"],
     expose_headers=["X-Request-ID"],
 )
@@ -55,6 +55,7 @@ async def request_metadata(request: Request, call_next):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "same-origin"
     response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()"
     return response
 
 

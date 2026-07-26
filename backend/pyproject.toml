@@ -1,7 +1,7 @@
 [project]
 name = "dau-vi-api"
 version = "0.1.0"
-description = "DẤU VỊ catalog, traceability, advisor and demo-order API"
+description = "DẤU VỊ catalog, traceability, advisor, authentication and demo-order API"
 requires-python = ">=3.11"
 
 [tool.pytest.ini_options]
@@ -14,4 +14,3 @@ target-version = "py311"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B", "SIM"]
-

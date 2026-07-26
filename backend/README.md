@@ -1,8 +1,11 @@
 # DẤU VỊ API
 
 Backend FastAPI cho storefront DẤU VỊ. API cung cấp catalog, hồ sơ truy xuất,
-Coffee Advisor xác định theo bộ quy tắc và đơn hàng COD trình diễn được lưu vào
-PostgreSQL.
+Coffee Advisor, Coffee Assistant, authentication/session bảo mật và đơn hàng COD
+trình diễn được lưu vào PostgreSQL.
+
+Các nhóm endpoint production: `/products`, `/lots`, `/advisor`, `/assistant`,
+`/auth`, `/orders` dưới prefix `/api/v1`, cùng `/health/live` và `/health/ready`.
 
 ## Chạy trực tiếp
 

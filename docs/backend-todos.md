@@ -10,7 +10,7 @@
 - [ ] Nâng Advisor thành AI/RAG có catalog guardrail và citation/evidence policy.
 - Đồng bộ cart với account/session khi authentication được bật; migrate `vtc-cart-v1` an toàn.
 - Bổ sung shipping quote, trạng thái đơn và payment provider qua tokenized hosted fields; không đưa card data qua frontend tự quản.
-- [ ] Triển khai contract `/auth/register`, `/auth/login`, `/auth/session`, `/auth/logout`: Argon2id, cookie HttpOnly/Secure, rotation, CSRF policy, rate limiting, consent và privacy retention. Frontend form đã nối sẵn qua `NEXT_PUBLIC_ENABLE_AUTH`.
-- [ ] Triển khai `/assistant/messages` với catalog/evidence guardrail; frontend tự dùng rule set local cho đến khi `NEXT_PUBLIC_ENABLE_CHATBOT_API=true`.
+- [x] Triển khai `/auth/register`, `/auth/login`, `/auth/session`, `/auth/logout`: Argon2id, cookie HttpOnly/Secure, session rotation, kiểm tra Origin và rate limiting lưu trong PostgreSQL.
+- [x] Triển khai `/assistant/messages` với catalog/evidence guardrail và action chỉ trỏ route nội bộ hợp lệ.
 - Thay farm/cooperative/lot Demo Data bằng hồ sơ được phép công bố; chỉ nâng evidence level sau quy trình xác minh.
 - Kết nối ảnh sản phẩm thật qua CDN/image pipeline và giữ alt text theo content model.

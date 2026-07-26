@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000" role="img" aria-labelledby="title desc">
+  <title id="title">Minh họa vùng cà phê Bảo Lâm</title><desc id="desc">Những lớp đồi xanh sâu và ánh mật ong của vùng sơ chế Honey.</desc>
+  <defs><linearGradient id="bg" x1=".1" y1="0" x2=".9" y2="1"><stop stop-color="#8ca38d"/><stop offset=".62" stop-color="#345f4b"/><stop offset="1" stop-color="#173629"/></linearGradient></defs>
+  <path fill="url(#bg)" d="M0 0h1600v1000H0z"/><ellipse cx="1230" cy="160" rx="260" ry="150" fill="#c79648" opacity=".23"/>
+  <path d="M0 670 220 520l210 90 240-210 250 180 250-245 430 305v360H0z" fill="#3f7258"/><path d="M0 805 260 660l260 115 280-210 275 210 275-125 250 135v215H0z" fill="#17392d"/>
+  <g fill="none" stroke="#f0e1bf" stroke-width="3" opacity=".2"><path d="M0 300c250-160 440 170 720 0s520-130 900 50"/><path d="M0 365c260-150 450 180 730 10s530-110 900 65"/><path d="M0 430c270-140 460 190 740 20s540-90 900 80"/></g>
+</svg>

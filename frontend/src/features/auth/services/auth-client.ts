@@ -17,6 +17,7 @@ export function registerAccount(values: RegisterValues): Promise<AuthSession> {
       fullName: values.fullName,
       email: values.email,
       password: values.password,
+      acceptTerms: values.acceptTerms,
     },
     credentials: "include",
     schema: authSessionSchema,

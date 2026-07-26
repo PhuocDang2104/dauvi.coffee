@@ -121,12 +121,12 @@ a {
 }
 
 .shell {
-  width: min(100% - 3rem, 80rem);
+  width: min(100% - 3rem, 72rem);
   margin-inline: auto;
 }
 
 .wide-shell {
-  width: min(100% - 3rem, 90rem);
+  width: min(100% - 3rem, 82rem);
   margin-inline: auto;
 }
 
@@ -226,6 +226,18 @@ a {
   animation: map-visual-in 320ms cubic-bezier(.22,.8,.25,1) both;
 }
 
+.trace-slide-in {
+  animation: trace-slide-in 520ms cubic-bezier(.22,.8,.25,1) both;
+}
+
+.trace-carousel-progress {
+  width: 100%;
+  transform-origin: left;
+  animation-name: trace-carousel-progress;
+  animation-timing-function: linear;
+  animation-fill-mode: both;
+}
+
 @media (min-width: 1280px) {
   .home-pathway-card {
     animation: home-pathway-cycle 20s cubic-bezier(.22,.8,.25,1) infinite;
@@ -286,6 +298,16 @@ a {
 @keyframes home-pathway-detail-cycle {
   0%, 20% { max-height: 4rem; opacity: 1; transform: translateY(0); }
   25%, 100% { max-height: 0; opacity: 0; transform: translateY(.5rem); }
+}
+
+@keyframes trace-slide-in {
+  from { opacity: 0; transform: translateX(18px) scale(.992); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes trace-carousel-progress {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
 }
 
 .lot-code {
@@ -372,22 +394,28 @@ a {
 @media (min-width: 768px) {
   .shell,
   .wide-shell {
-    width: min(100% - 5rem, 80rem);
+    width: min(100% - 5rem, 72rem);
   }
 
   .wide-shell {
-    width: min(100% - 5rem, 90rem);
+    width: min(100% - 5rem, 82rem);
   }
 }
 
 @media (min-width: 1280px) {
   .shell,
   .wide-shell {
-    width: min(100% - 8rem, 80rem);
+    width: min(100% - 8rem, 72rem);
   }
 
   .wide-shell {
-    width: min(100% - 8rem, 90rem);
+    width: min(100% - 8rem, 82rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  html {
+    font-size: 14px;
   }
 }
 

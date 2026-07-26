@@ -1,0 +1,18 @@
+# Ghép block này vào Caddyfile đang chạy trên VNPT Cloud.
+# Khi Caddy và backend cùng external Docker network `caddy`:
+YOUR-SUBDOMAIN.duckdns.org {
+    encode zstd gzip
+    reverse_proxy backend:8000
+
+    header {
+        -Server
+        X-Content-Type-Options nosniff
+        Referrer-Policy same-origin
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+
+    log {
+        output stdout
+        format console
+    }
+}

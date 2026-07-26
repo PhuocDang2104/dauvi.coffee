@@ -1,0 +1,11 @@
+services:
+  backend:
+    networks:
+      - app
+      - data
+      - caddy
+
+networks:
+  caddy:
+    external: true
+    name: ${CADDY_NETWORK:-caddy}

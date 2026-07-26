@@ -144,10 +144,11 @@ function PasswordField({ id, label, show, setShow, error, registration, autoComp
 }
 
 export function AuthPreviewNotice() {
+  const authEnabled = isAuthEnabled();
   return (
     <div className="mb-6 flex items-start gap-3 rounded-xl border border-honey-500/25 bg-honey-500/8 p-3 text-xs leading-5 text-roast-700">
       <LockKeyhole aria-hidden="true" className="mt-0.5 size-4 shrink-0" />
-      <p>Form đã nối contract backend bằng cookie HttpOnly. Chế độ hiện tại chưa tạo phiên thật.</p>
+      <p>{authEnabled ? "Đăng nhập được bảo vệ bằng cookie HttpOnly và phiên lưu tại backend." : "Auth đang tắt trong môi trường này; bật NEXT_PUBLIC_ENABLE_AUTH khi backend sẵn sàng."}</p>
     </div>
   );
 }
