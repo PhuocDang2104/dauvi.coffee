@@ -100,15 +100,18 @@ export function HomeHero() {
 
 export function CollectionOverview() {
   return (
-    <section id="collection-overview" className="shell scroll-mt-40 py-10 md:py-14 lg:scroll-mt-28">
-      <h2 className="sr-only">Khám phá DẤU VỊ theo nhu cầu của bạn</h2>
-      <div className="grid gap-4 sm:grid-cols-2 xl:flex xl:min-h-[18rem]">
-        {HOME_PATHWAYS.map(({ title, description, href, image, icon: Icon, details }, index) => (
-          <Link
-            key={title}
-            href={href}
-            className="group relative isolate flex min-h-[16rem] overflow-hidden rounded-[1.45rem] border border-basalt-900/10 p-6 shadow-[0_14px_38px_rgba(24,26,24,.09)] transition-[flex,transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,.8,.25,1)] hover:-translate-y-1.5 hover:border-honey-500/40 hover:shadow-[0_28px_64px_rgba(24,26,24,.16)] focus-visible:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-500 focus-visible:ring-offset-2 xl:min-w-0 xl:flex-1 xl:basis-0 xl:hover:flex-[1.65] xl:focus-visible:flex-[1.65]"
-          >
+    <section id="collection-overview" className="relative scroll-mt-40 overflow-hidden bg-[linear-gradient(180deg,#faf8f2_0%,#edf3f2_43%,#bfd3d3_78%,#102a20_100%)] pb-20 pt-10 md:pb-28 md:pt-14 lg:scroll-mt-28">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-[radial-gradient(ellipse_at_50%_100%,rgba(38,87,91,.42),transparent_68%)]" aria-hidden="true" />
+      <div className="shell relative">
+        <h2 className="sr-only">Khám phá DẤU VỊ theo nhu cầu của bạn</h2>
+        <div className="home-pathways grid gap-4 sm:grid-cols-2 xl:flex xl:min-h-[18rem]">
+          {HOME_PATHWAYS.map(({ title, description, href, image, icon: Icon, details }, index) => (
+            <Link
+              key={title}
+              href={href}
+              style={{ animationDelay: `${index * 5}s` }}
+              className="home-pathway-card group relative isolate flex min-h-[16rem] overflow-hidden rounded-[1.45rem] border border-sky-950/10 p-6 shadow-[0_16px_42px_rgba(29,62,65,.12)] transition-[flex,transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,.8,.25,1)] hover:-translate-y-1.5 hover:border-forest-700/35 hover:shadow-[0_30px_70px_rgba(28,66,70,.2)] focus-visible:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-500 focus-visible:ring-offset-2 xl:min-w-0 xl:flex-1 xl:basis-0 xl:hover:flex-[1.65] xl:focus-visible:flex-[1.65]"
+            >
             <Image
               src={image}
               alt=""
@@ -127,7 +130,7 @@ export function CollectionOverview() {
               </span>
               <h3 className="mt-7 font-display text-[1.35rem] font-semibold tracking-[-0.025em] text-ink-950">{title}</h3>
               <p className="mt-2 max-w-[15rem] text-xs leading-5 text-ink-700">{description}</p>
-              <div className="mt-3 flex max-h-16 flex-wrap gap-1.5 overflow-hidden opacity-100 transition-all duration-500 xl:max-h-0 xl:translate-y-2 xl:opacity-0 xl:group-hover:max-h-16 xl:group-hover:translate-y-0 xl:group-hover:opacity-100 xl:group-focus-visible:max-h-16 xl:group-focus-visible:translate-y-0 xl:group-focus-visible:opacity-100">
+              <div style={{ animationDelay: `${index * 5}s` }} className="home-pathway-details mt-3 flex max-h-16 flex-wrap gap-1.5 overflow-hidden opacity-100 transition-all duration-500 xl:max-h-0 xl:translate-y-2 xl:opacity-0 xl:group-hover:max-h-16 xl:group-hover:translate-y-0 xl:group-hover:opacity-100 xl:group-focus-visible:max-h-16 xl:group-focus-visible:translate-y-0 xl:group-focus-visible:opacity-100">
                 {details.map((detail) => (
                   <span key={detail} className="rounded-full border border-forest-950/12 bg-mist-50/70 px-2.5 py-1 text-[0.6rem] font-bold text-forest-950 backdrop-blur-sm">{detail}</span>
                 ))}
@@ -138,8 +141,9 @@ export function CollectionOverview() {
               <ArrowRight aria-hidden="true" size={16} />
             </span>
             <span className="lot-code absolute right-4 top-4 text-[0.58rem] font-bold text-ink-500/65">0{index + 1}</span>
-          </Link>
-        ))}
+            </Link>
+          ))}
+        </div>
       </div>
     </section>
   );

@@ -12,7 +12,7 @@ test("homepage dùng banner, bốn card và flavor map tương tác", async ({ p
     await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
   }
 
-  const pathwayCards = page.locator("#collection-overview > div > a");
+  const pathwayCards = page.locator("#collection-overview .home-pathway-card");
   await expect(pathwayCards).toHaveCount(4);
   await pathwayCards.first().hover();
   await page.waitForTimeout(650);

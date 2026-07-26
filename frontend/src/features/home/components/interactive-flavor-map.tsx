@@ -93,7 +93,7 @@ export function InteractiveFlavorMap() {
 
   return (
     <section id="vietnam-flavor-map" className="scroll-mt-40 overflow-hidden border-y border-white/10 bg-forest-950 py-16 text-mist-50 md:py-20 lg:scroll-mt-28 lg:py-24">
-      <div className="shell grid gap-10 lg:grid-cols-[.88fr_1.12fr] lg:items-center xl:gap-14">
+      <div className="shell grid gap-10 lg:grid-cols-[.94fr_1.06fr] lg:items-center xl:gap-12">
         <div className="relative mx-auto w-full max-w-[31rem]">
           <div className="relative aspect-[2/3] overflow-hidden rounded-[1.65rem] border border-honey-500/20 bg-paper-100 shadow-[0_34px_90px_rgba(0,0,0,.3)]">
             <Image
@@ -129,7 +129,7 @@ export function InteractiveFlavorMap() {
               );
             })}
 
-            <article key={activeRegion.id} className="map-detail-in absolute inset-x-3 top-3 z-10 rounded-[1.15rem] border border-white/15 bg-forest-950/94 p-3.5 text-white shadow-[0_18px_45px_rgba(0,0,0,.24)] backdrop-blur-md sm:left-5 sm:right-auto sm:top-5 sm:w-[calc(100%-2.5rem)] sm:p-4">
+            <article key={activeRegion.id} className="map-detail-in absolute inset-x-3 top-3 z-10 rounded-[1.15rem] border border-white/20 bg-forest-950/50 p-3.5 text-white shadow-[0_18px_45px_rgba(0,0,0,.22)] backdrop-blur-lg sm:left-5 sm:right-auto sm:top-5 sm:w-[calc(100%-2.5rem)] sm:p-4">
               <div className="flex items-start gap-3">
                 <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-paper-100 shadow-inner sm:size-[4.5rem]">
                   <Image src={activeRegion.image} alt="" fill sizes="72px" className="object-contain mix-blend-multiply" />
@@ -147,15 +147,15 @@ export function InteractiveFlavorMap() {
           </div>
         </div>
 
-        <div>
+        <div className="w-full max-w-[32rem] lg:justify-self-center">
           <p className="eyebrow !text-honey-500">Vietnam Flavor Map</p>
           <div className="mt-4 h-px w-12 bg-honey-500" aria-hidden="true" />
           <h2 className="mt-6 max-w-[32rem] font-display text-[clamp(2.65rem,4.4vw,4rem)] font-medium leading-[1.02] tracking-[-.04em] text-paper-100 text-balance">Một bản đồ, nhiều sắc thái cà phê</h2>
-          <p className="mt-5 max-w-md text-sm leading-6 text-sand-200/80">
-            Mỗi vùng đất, một độ cao, một khí hậu và một câu chuyện hương vị. Chạm vào từng điểm để khám phá.
+          <p className="mt-5 max-w-[32rem] text-sm leading-6 text-sand-200/80">
+            Mỗi vùng đất, một độ cao, một khí hậu và một câu chuyện hương vị. Từ Robusta đậm sâu đến Arabica thanh sáng, từng điểm trên bản đồ mở ra một cách thưởng thức riêng. Chạm để khám phá vùng trồng, độ cao và dòng cà phê tiêu biểu.
           </p>
 
-          <article key={`visual-${activeRegion.id}`} className="map-visual-in relative mt-7 aspect-[16/8.7] overflow-hidden rounded-[1.5rem] border border-honey-500/20 bg-paper-100 shadow-[0_26px_68px_rgba(0,0,0,.22)]">
+          <article key={`visual-${activeRegion.id}`} className="map-visual-in relative mt-7 aspect-[16/8.7] w-full max-w-[32rem] overflow-hidden rounded-[1.5rem] border border-honey-500/20 bg-paper-100 shadow-[0_26px_68px_rgba(0,0,0,.22)]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_45%,rgba(199,150,72,.22),transparent_36%),linear-gradient(110deg,#f3eee4_0%,#eee4d4_100%)]" aria-hidden="true" />
             <Image
               src={activeRegion.image}
@@ -172,7 +172,7 @@ export function InteractiveFlavorMap() {
             </div>
           </article>
 
-          <div className="mt-8 grid grid-cols-3 gap-3 border-t border-white/10 pt-7">
+          <div className="mt-7 grid w-full max-w-[32rem] grid-cols-3 gap-2 border-t border-white/10 pt-6">
             {MAP_VALUES.map(({ icon: Icon, label, value }) => (
               <div key={label} className="text-center">
                 <span className="mx-auto grid size-12 place-items-center rounded-full border border-honey-500/65 text-honey-500 shadow-[inset_0_0_24px_rgba(199,150,72,.08)] sm:size-14">

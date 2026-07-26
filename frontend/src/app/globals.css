@@ -226,6 +226,38 @@ a {
   animation: map-visual-in 320ms cubic-bezier(.22,.8,.25,1) both;
 }
 
+@media (min-width: 1280px) {
+  .home-pathway-card {
+    animation: home-pathway-cycle 20s cubic-bezier(.22,.8,.25,1) infinite;
+  }
+
+  .home-pathway-details {
+    animation: home-pathway-detail-cycle 20s cubic-bezier(.22,.8,.25,1) infinite;
+  }
+
+  .home-pathways:is(:hover, :focus-within) .home-pathway-card {
+    animation: none;
+    flex-grow: 1;
+  }
+
+  .home-pathways:is(:hover, :focus-within) .home-pathway-details {
+    animation: none;
+    max-height: 0;
+    opacity: 0;
+    transform: translateY(.5rem);
+  }
+
+  .home-pathways .home-pathway-card:is(:hover, :focus-visible) {
+    flex-grow: 1.65;
+  }
+
+  .home-pathways .home-pathway-card:is(:hover, :focus-visible) .home-pathway-details {
+    max-height: 4rem;
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @keyframes pack-float {
   0%, 100% { transform: translateY(0) rotate(-2deg); }
   50% { transform: translateY(-10px) rotate(1deg); }
@@ -244,6 +276,16 @@ a {
 @keyframes map-visual-in {
   from { opacity: 0; transform: translateX(10px) scale(.99); }
   to { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes home-pathway-cycle {
+  0%, 20% { flex-grow: 1.65; transform: translateY(-6px); }
+  25%, 100% { flex-grow: 1; transform: translateY(0); }
+}
+
+@keyframes home-pathway-detail-cycle {
+  0%, 20% { max-height: 4rem; opacity: 1; transform: translateY(0); }
+  25%, 100% { max-height: 0; opacity: 0; transform: translateY(.5rem); }
 }
 
 .lot-code {
@@ -376,5 +418,10 @@ a {
   .button-primary:hover,
   .button-secondary:hover {
     transform: none;
+  }
+
+  .home-pathway-card,
+  .home-pathway-details {
+    animation: none !important;
   }
 }
