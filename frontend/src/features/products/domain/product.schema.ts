@@ -21,12 +21,23 @@ export const productVariantSchema = z
     id: z.string().min(1),
     sku: z.string().min(1),
     format: z.enum(PRODUCT_FORMAT_VALUES),
-    weightGrams: z.union([z.literal(250), z.literal(500)]).optional(),
-    dripBagCount: z.union([z.literal(10), z.literal(20)]).optional(),
-    dripBagWeightGrams: z.literal(12).optional(),
+    // JSON APIs serialize non-applicable optional fields as null. Normalize
+    // those values back to undefined so the domain model stays unchanged.
+    weightGrams: z
+      .union([z.literal(250), z.literal(500)])
+      .nullish()
+      .transform((value) => value ?? undefined),
+    dripBagCount: z
+      .union([z.literal(10), z.literal(20)])
+      .nullish()
+      .transform((value) => value ?? undefined),
+    dripBagWeightGrams: z
+      .literal(12)
+      .nullish()
+      .transform((value) => value ?? undefined),
     grindOptions: z.array(z.enum(GRIND_TYPE_VALUES)),
     price: moneySchema,
-    compareAtPrice: moneySchema.optional(),
+    compareAtPrice: moneySchema.nullish().transform((value) => value ?? undefined),
     inStock: z.boolean(),
   })
   .superRefine((variant, context) => {

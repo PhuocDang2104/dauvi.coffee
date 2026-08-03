@@ -11,9 +11,17 @@ export const evidenceItemSchema = z.object({
   label: z.string().min(1),
   value: z.string().min(1),
   level: z.enum(EVIDENCE_LEVEL_VALUES),
-  sourceLabel: z.string().min(1).optional(),
-  sourceReference: z.string().min(1).optional(),
-  verifiedAt: isoDateSchema.optional(),
+  sourceLabel: z
+    .string()
+    .min(1)
+    .nullish()
+    .transform((value) => value ?? undefined),
+  sourceReference: z
+    .string()
+    .min(1)
+    .nullish()
+    .transform((value) => value ?? undefined),
+  verifiedAt: isoDateSchema.nullish().transform((value) => value ?? undefined),
 });
 
 export const traceabilityEventSchema = z.object({
@@ -30,7 +38,11 @@ export const coffeeLotSchema = z
     productId: z.string().min(1),
     status: z.enum(LOT_STATUS_VALUES),
     farmName: z.string().min(1),
-    cooperativeName: z.string().min(1).optional(),
+    cooperativeName: z
+      .string()
+      .min(1)
+      .nullish()
+      .transform((value) => value ?? undefined),
     province: z.string().min(1),
     district: z.string().min(1),
     regionId: z.string().min(1),
@@ -70,4 +82,3 @@ export const coffeeLotListResponseSchema = z.union([
   coffeeLotArraySchema,
   z.object({ data: coffeeLotArraySchema }),
 ]);
-
