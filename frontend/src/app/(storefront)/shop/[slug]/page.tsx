@@ -20,10 +20,9 @@ interface ProductPageProps {
   params: Promise<{ slug: string }>;
 }
 
-export async function generateStaticParams() {
-  const products = await getRepositories().products.list();
-  return products.map((product) => ({ slug: product.slug }));
-}
+// Product data comes from the deployed API in HTTP mode. Rendering this route
+// dynamically keeps the frontend build independent from backend availability.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params;

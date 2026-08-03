@@ -11,10 +11,10 @@ Hạ tầng đã dùng:
 ## 1. Clone repo trên VNPT Cloud
 
 ```bash
-sudo mkdir -p /opt/dauvi
-sudo chown "$USER":"$USER" /opt/dauvi
-git clone https://github.com/PhuocDang2104/dauvi.coffee.git /opt/dauvi
-cd /opt/dauvi
+sudo mkdir -p /opt/dauvi.coffee
+sudo chown "$USER":"$USER" /opt/dauvi.coffee
+git clone https://github.com/PhuocDang2104/dauvi.coffee.git /opt/dauvi.coffee
+cd /opt/dauvi.coffee
 ```
 
 ## 2. Tạo biến backend
@@ -98,9 +98,9 @@ docker exec minute_caddy caddy reload --config /etc/caddy/Caddyfile
 ## 4. Build và chạy backend
 
 ```bash
-cd /opt/dauvi
-docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml build --pull backend
-docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml up -d database backend
+cd /opt/dauvi.coffee
+docker build --network=host --pull -f docker/backend.Dockerfile -t dau-vi-backend:latest .
+docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml up -d --no-build database backend
 docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml logs --tail=150 backend
 ```
 
@@ -146,10 +146,10 @@ Trên browser kiểm tra:
 ## 7. Update backend
 
 ```bash
-cd /opt/dauvi
+cd /opt/dauvi.coffee
 git pull --ff-only
-docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml build --pull backend
-docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml up -d backend
+docker build --network=host --pull -f docker/backend.Dockerfile -t dau-vi-backend:latest .
+docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml up -d --no-build backend
 docker image prune -f
 ```
 
