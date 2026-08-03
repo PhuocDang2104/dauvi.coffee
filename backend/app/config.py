@@ -34,11 +34,12 @@ class Settings(BaseSettings):
     assistant_rate_limit_requests: int = 12
     assistant_rate_limit_window_minutes: int = 1
     ai_enabled: bool = False
-    openai_api_key: SecretStr | None = None
-    openai_model: str = "gpt-5.6-sol"
-    openai_reasoning_effort: Literal["none", "low", "medium", "high"] = "low"
-    openai_timeout_seconds: float = 20.0
-    openai_max_output_tokens: int = 800
+    groq_api_key: SecretStr | None = None
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_model: str = "openai/gpt-oss-20b"
+    groq_reasoning_effort: Literal["none", "low", "medium", "high"] = "low"
+    groq_timeout_seconds: float = 20.0
+    groq_max_output_tokens: int = 800
 
     @model_validator(mode="after")
     def validate_production_secrets(self) -> Settings:
@@ -47,8 +48,8 @@ class Settings(BaseSettings):
                 raise ValueError("SESSION_SECRET must be a unique value of at least 32 characters.")
             if not self.session_cookie_secure:
                 raise ValueError("SESSION_COOKIE_SECURE must be true in production.")
-        if self.ai_enabled and not self.openai_api_key:
-            raise ValueError("OPENAI_API_KEY is required when AI_ENABLED=true.")
+        if self.ai_enabled and not self.groq_api_key:
+            raise ValueError("GROQ_API_KEY is required when AI_ENABLED=true.")
         return self
 
     @property

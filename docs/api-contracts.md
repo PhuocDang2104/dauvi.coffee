@@ -263,7 +263,7 @@ same-origin rewrite `/backend-api`; CORS vẫn giữ danh sách origin chính x�
 ## Coffee Assistant
 
 Backend truy xuất tối đa ba sản phẩm/lô phù hợp trực tiếp từ PostgreSQL rồi gửi context
-giới hạn đó cho OpenAI Responses API. Frontend dùng fallback local khi API chưa bật;
+giới hạn đó cho Groq Responses API. Frontend dùng fallback local khi API chưa bật;
 khi `NEXT_PUBLIC_ENABLE_CHATBOT_API=true`, widget gọi:
 
 ```http
@@ -280,7 +280,7 @@ Body `{ "message": string }`; response:
 ```
 
 Nội dung AI dùng structured output, không được thêm giá/chứng nhận/claim ngoài context.
-Action luôn do backend tạo từ route catalog thật. Khi thiếu key hoặc OpenAI lỗi, backend
+Action luôn do backend tạo từ route catalog thật. Khi thiếu key hoặc Groq lỗi, backend
 tự trả kết quả rule-based từ cùng dữ liệu; endpoint có rate limit lưu trong PostgreSQL.
 
 ## Healthcheck

@@ -27,6 +27,5 @@ async def assistant_message(
     return await answer_catalog_question(
         session,
         payload.message,
-        client_identifier,
         settings,
     )

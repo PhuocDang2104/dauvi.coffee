@@ -50,11 +50,12 @@ AUTH_RATE_LIMIT_WINDOW_MINUTES=15
 ASSISTANT_RATE_LIMIT_REQUESTS=12
 ASSISTANT_RATE_LIMIT_WINDOW_MINUTES=1
 AI_ENABLED=true
-OPENAI_API_KEY=<OPENAI_API_KEY>
-OPENAI_MODEL=gpt-5.6-sol
-OPENAI_REASONING_EFFORT=low
-OPENAI_TIMEOUT_SECONDS=20
-OPENAI_MAX_OUTPUT_TOKENS=800
+GROQ_API_KEY=<GROQ_API_KEY_BAT_DAU_BANG_gsk_>
+GROQ_BASE_URL=https://api.groq.com/openai/v1
+GROQ_MODEL=openai/gpt-oss-20b
+GROQ_REASONING_EFFORT=low
+GROQ_TIMEOUT_SECONDS=20
+GROQ_MAX_OUTPUT_TOKENS=800
 
 DOCS_ENABLED=false
 LOG_LEVEL=INFO
@@ -65,7 +66,7 @@ BACKEND_PORT=18081
 CADDY_NETWORK=caddy
 ```
 
-`OPENAI_API_KEY`, password DB và session secret chỉ nằm trong `docker/.env` trên VM; không thêm chúng vào Vercel hoặc Git.
+`GROQ_API_KEY`, password DB và session secret chỉ nằm trong `docker/.env` trên VM; không thêm chúng vào Vercel hoặc Git.
 
 ## 3. Nối backend vào Caddy đang chạy
 

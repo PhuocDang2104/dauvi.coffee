@@ -101,7 +101,7 @@ def enforce_assistant_rate_limit(
         AssistantRequest(
             id=str(uuid.uuid4()),
             client_hash=client_identifier,
-            used_ai=settings.ai_enabled and settings.openai_api_key is not None,
+            used_ai=settings.ai_enabled and settings.groq_api_key is not None,
             occurred_at=now,
         )
     )
@@ -349,46 +349,43 @@ Ràng buộc:
 async def _generate_ai_message(
     products: list[Product],
     raw_message: str,
-    safety_identifier: str,
     settings: Settings,
 ) -> str | None:
-    if not settings.ai_enabled or not settings.openai_api_key:
+    if not settings.ai_enabled or not settings.groq_api_key:
         return None
 
     client = AsyncOpenAI(
-        api_key=settings.openai_api_key.get_secret_value(),
-        timeout=settings.openai_timeout_seconds,
+        api_key=settings.groq_api_key.get_secret_value(),
+        base_url=settings.groq_base_url,
+        timeout=settings.groq_timeout_seconds,
         max_retries=1,
     )
     try:
         response = await client.responses.parse(
-            model=settings.openai_model,
+            model=settings.groq_model,
             input=[
-                {"role": "developer", "content": _developer_prompt(_catalog_context(products))},
+                {"role": "system", "content": _developer_prompt(_catalog_context(products))},
                 {"role": "user", "content": raw_message},
             ],
             text_format=GeneratedAssistantMessage,
-            reasoning={"effort": settings.openai_reasoning_effort},
-            max_output_tokens=settings.openai_max_output_tokens,
-            safety_identifier=safety_identifier,
-            store=False,
+            reasoning={"effort": settings.groq_reasoning_effort},
+            max_output_tokens=settings.groq_max_output_tokens,
         )
         parsed = response.output_parsed
         return parsed.message.strip() if parsed and parsed.message.strip() else None
     except Exception as error:  # The deterministic catalog fallback must remain available.
-        logger.warning("OpenAI assistant fallback: %s", type(error).__name__)
+        logger.warning("Groq assistant fallback: %s", type(error).__name__)
         return None
 
 
 async def answer_catalog_question(
     session: Session,
     raw_message: str,
-    safety_identifier: str,
     settings: Settings,
 ) -> AssistantResponse:
     catalog = _load_catalog(session)
     retrieved = _retrieve_products(catalog, raw_message)
-    generated = await _generate_ai_message(retrieved, raw_message, safety_identifier, settings)
+    generated = await _generate_ai_message(retrieved, raw_message, settings)
     return AssistantResponse(
         message=generated or _fallback_message(retrieved, raw_message),
         actions=_actions(retrieved, raw_message),
