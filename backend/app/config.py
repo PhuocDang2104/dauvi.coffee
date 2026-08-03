@@ -3,7 +3,7 @@ from __future__ import annotations
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import model_validator
+from pydantic import SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,14 +31,24 @@ class Settings(BaseSettings):
     session_remember_days: int = 30
     auth_rate_limit_attempts: int = 8
     auth_rate_limit_window_minutes: int = 15
+    assistant_rate_limit_requests: int = 12
+    assistant_rate_limit_window_minutes: int = 1
+    ai_enabled: bool = False
+    openai_api_key: SecretStr | None = None
+    openai_model: str = "gpt-5.6-sol"
+    openai_reasoning_effort: Literal["none", "low", "medium", "high"] = "low"
+    openai_timeout_seconds: float = 20.0
+    openai_max_output_tokens: int = 800
 
     @model_validator(mode="after")
-    def validate_production_secrets(self) -> "Settings":
+    def validate_production_secrets(self) -> Settings:
         if self.app_env == "production":
             if len(self.session_secret) < 32 or self.session_secret == "development-only-change-me":
                 raise ValueError("SESSION_SECRET must be a unique value of at least 32 characters.")
             if not self.session_cookie_secure:
                 raise ValueError("SESSION_COOKIE_SECURE must be true in production.")
+        if self.ai_enabled and not self.openai_api_key:
+            raise ValueError("OPENAI_API_KEY is required when AI_ENABLED=true.")
         return self
 
     @property

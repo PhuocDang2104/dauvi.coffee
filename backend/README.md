@@ -4,6 +4,10 @@ Backend FastAPI cho storefront DẤU VỊ. API cung cấp catalog, hồ sơ truy
 Coffee Advisor, Coffee Assistant, authentication/session bảo mật và đơn hàng COD
 trình diễn được lưu vào PostgreSQL.
 
+Coffee Assistant dùng retrieval cục bộ trên 6 sản phẩm/6 hồ sơ lô trong PostgreSQL,
+sau đó gọi OpenAI Responses API nếu `AI_ENABLED=true`. Khi thiếu key hoặc API lỗi,
+backend tự dùng câu trả lời catalog rule-based.
+
 Các nhóm endpoint production: `/products`, `/lots`, `/advisor`, `/assistant`,
 `/auth`, `/orders` dưới prefix `/api/v1`, cùng `/health/live` và `/health/ready`.
 

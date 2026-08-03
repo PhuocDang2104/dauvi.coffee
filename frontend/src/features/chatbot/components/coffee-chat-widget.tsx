@@ -151,7 +151,7 @@ export function CoffeeChatWidget() {
                 <Send aria-hidden="true" size={17} />
               </button>
             </form>
-            <p className="mt-2 text-center text-[0.58rem] leading-4 text-ink-500">Bản hiện tại dùng quy tắc sản phẩm; API hội thoại được bật qua biến môi trường.</p>
+            <p className="mt-2 text-center text-[0.58rem] leading-4 text-ink-500">AI chỉ trả lời từ catalog và hồ sơ demo của 6 dòng cà phê DẤU VỊ.</p>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

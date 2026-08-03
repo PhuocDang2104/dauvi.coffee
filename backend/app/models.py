@@ -253,7 +253,9 @@ class UserSession(Base):
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
     token_hash: Mapped[str] = mapped_column(String(64), unique=True, nullable=False)
-    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
     revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     ip_hash: Mapped[str | None] = mapped_column(String(64))
     user_agent: Mapped[str | None] = mapped_column(String(255))
@@ -280,3 +282,16 @@ class AuthAttempt(Base):
     )
 
     __table_args__ = (Index("ix_auth_attempt_identity_time", "identity_hash", "occurred_at"),)
+
+
+class AssistantRequest(Base):
+    __tablename__ = "assistant_requests"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    client_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    used_ai: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    occurred_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
+
+    __table_args__ = (Index("ix_assistant_request_client_time", "client_hash", "occurred_at"),)

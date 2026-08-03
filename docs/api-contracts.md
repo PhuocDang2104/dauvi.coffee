@@ -262,8 +262,9 @@ same-origin rewrite `/backend-api`; CORS vẫn giữ danh sách origin chính x�
 
 ## Coffee Assistant
 
-Backend đã có rule set catalog-aware. Frontend mặc định dùng rule set local; khi bật
-`NEXT_PUBLIC_ENABLE_CHATBOT_API=true`, widget gọi:
+Backend truy xuất tối đa ba sản phẩm/lô phù hợp trực tiếp từ PostgreSQL rồi gửi context
+giới hạn đó cho OpenAI Responses API. Frontend dùng fallback local khi API chưa bật;
+khi `NEXT_PUBLIC_ENABLE_CHATBOT_API=true`, widget gọi:
 
 ```http
 POST /assistant/messages
@@ -278,8 +279,9 @@ Body `{ "message": string }`; response:
 }
 ```
 
-Response hiện không gọi LLM, chỉ trả action route nội bộ tồn tại trong catalog và
-không tự tạo claim sản phẩm hoặc môi trường.
+Nội dung AI dùng structured output, không được thêm giá/chứng nhận/claim ngoài context.
+Action luôn do backend tạo từ route catalog thật. Khi thiếu key hoặc OpenAI lỗi, backend
+tự trả kết quả rule-based từ cùng dữ liệu; endpoint có rate limit lưu trong PostgreSQL.
 
 ## Healthcheck
 

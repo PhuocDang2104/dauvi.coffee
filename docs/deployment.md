@@ -1,125 +1,43 @@
-# Deploy DẤU VỊ: Vercel + VNPT Cloud + DuckDNS + Caddy
+# Deploy DẤU VỊ
 
-Kiến trúc production được đóng gói theo mô hình:
+Hạ tầng đã dùng:
 
-```text
-Browser
-  └─ https://<project>.vercel.app
-       ├─ Next.js frontend
-       └─ /backend-api/* (Vercel rewrite, cùng origin cho cookie)
-            └─ https://<subdomain>.duckdns.org/api/v1/*
-                 └─ Caddy :443
-                      └─ backend:8000 (FastAPI)
-                           └─ database:5432 (PostgreSQL, internal network)
-```
+- Repo: `https://github.com/PhuocDang2104/dauvi.coffee`
+- Frontend: `https://dauvi-coffee.vercel.app`
+- Backend: `https://dauvi-api.duckdns.org`
+- Caddy đang chạy trong container `minute_caddy`.
+- `127.0.0.1:8000` đã bị `minute_backend` sử dụng, nên DẤU VỊ dùng `18081` để kiểm tra local.
 
-Frontend gọi backend qua `/backend-api`, vì vậy cookie đăng nhập vẫn là cookie
-cùng origin với website. `API_BASE_URL` riêng được Next.js dùng khi render/build
-phía server và trỏ thẳng tới API DuckDNS.
-
-## 1. Chuẩn bị VNPT Cloud
-
-Khuyến nghị ban đầu cho đồ án: Ubuntu 24.04 LTS, 2 vCPU, 4 GB RAM, SSD 30 GB trở
-lên và một Public IP. Trong VNPT Cloud Console:
-
-1. Tạo Cloud Server và gán Public IP.
-2. Security Group chỉ mở inbound:
-   - TCP `22` từ IP quản trị của bạn.
-   - TCP `80` và `443` từ Internet cho Caddy.
-3. Không mở `5432` hoặc `8000` ra Internet.
-
-Tài liệu VNPT Cloud về Cloud Server và Security Group:
-
-- https://cloud.vnpt.vn/tai-lieu/compute/cloud-server
-- https://cloud.vnpt.vn/tai-lieu/article/yeu-cau-ho-tro-mo-port-485
-
-## 2. Cài Docker trên Ubuntu
-
-SSH vào VM, sau đó cài từ repository chính thức của Docker:
-
-```bash
-sudo apt update
-sudo apt install -y ca-certificates curl git openssl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-sudo tee /etc/apt/sources.list.d/docker.sources >/dev/null <<EOF
-Types: deb
-URIs: https://download.docker.com/linux/ubuntu
-Suites: $(. /etc/os-release && echo "${UBUNTU_CODENAME:-$VERSION_CODENAME}")
-Components: stable
-Architectures: $(dpkg --print-architecture)
-Signed-By: /etc/apt/keyrings/docker.asc
-EOF
-
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-sudo systemctl enable --now docker
-sudo usermod -aG docker "$USER"
-```
-
-Đăng xuất SSH rồi đăng nhập lại, kiểm tra:
-
-```bash
-docker version
-docker compose version
-```
-
-Nguồn chính thức: https://docs.docker.com/engine/install/ubuntu/
-
-## 3. Đưa repository lên VM
+## 1. Clone repo trên VNPT Cloud
 
 ```bash
 sudo mkdir -p /opt/dauvi
 sudo chown "$USER":"$USER" /opt/dauvi
-git clone <YOUR_GIT_REPOSITORY_URL> /opt/dauvi
+git clone https://github.com/PhuocDang2104/dauvi.coffee.git /opt/dauvi
 cd /opt/dauvi
 ```
 
-Nếu repository private, dùng SSH deploy key thay vì lưu password/token trong
-command history.
-
-## 4. Kiểm tra DuckDNS
-
-Tại DuckDNS, tạo subdomain, ví dụ `dauvi-api.duckdns.org`, rồi trỏ nó tới Public
-IP của VM. Có thể cập nhật thủ công bằng API chính thức:
+## 2. Tạo biến backend
 
 ```bash
-curl "https://www.duckdns.org/update?domains=dauvi-api&token=<DUCKDNS_TOKEN>&ip=<VNPT_PUBLIC_IP>&verbose=true"
-```
-
-Không commit DuckDNS token vào repository. Kiểm tra DNS:
-
-```bash
-getent hosts dauvi-api.duckdns.org
-```
-
-Đặc tả DuckDNS update API: https://www.duckdns.org/spec.jsp
-
-## 5. Tạo biến backend production
-
-```bash
-cd /opt/dauvi
 cp docker/.env.example docker/.env
 chmod 600 docker/.env
-
-openssl rand -hex 32
-openssl rand -base64 48 | tr -dc 'A-Za-z0-9' | head -c 48; echo
+openssl rand -hex 24   # dùng làm POSTGRES_PASSWORD
+openssl rand -hex 32   # dùng làm SESSION_SECRET
 nano docker/.env
 ```
 
-Điền `docker/.env`:
+Giữ các giá trị sau và thay ba secret:
 
 ```dotenv
 POSTGRES_DB=dauvi
 POSTGRES_USER=dauvi
-POSTGRES_PASSWORD=<PASSWORD_URL_SAFE_VỪA_TẠO>
+POSTGRES_PASSWORD=<PASSWORD_VUA_TAO>
 
-CORS_ORIGINS=https://<YOUR-VERCEL-PROJECT>.vercel.app
-ALLOWED_HOSTS=dauvi-api.duckdns.org,backend,localhost,127.0.0.1
+CORS_ORIGINS=https://dauvi-coffee.vercel.app
+ALLOWED_HOSTS=dauvi-api.duckdns.org,dauvi-coffee.vercel.app,dauvi-api,backend,localhost,127.0.0.1
 
-SESSION_SECRET=<64_HEX_CHARACTERS_TỪ_OPENSSL>
+SESSION_SECRET=<SESSION_SECRET_VUA_TAO>
 SESSION_COOKIE_NAME=dauvi_session
 SESSION_COOKIE_SECURE=true
 SESSION_COOKIE_SAMESITE=lax
@@ -129,109 +47,75 @@ SESSION_REMEMBER_DAYS=30
 AUTH_RATE_LIMIT_ATTEMPTS=8
 AUTH_RATE_LIMIT_WINDOW_MINUTES=15
 
+ASSISTANT_RATE_LIMIT_REQUESTS=12
+ASSISTANT_RATE_LIMIT_WINDOW_MINUTES=1
+AI_ENABLED=true
+OPENAI_API_KEY=<OPENAI_API_KEY>
+OPENAI_MODEL=gpt-5.6-sol
+OPENAI_REASONING_EFFORT=low
+OPENAI_TIMEOUT_SECONDS=20
+OPENAI_MAX_OUTPUT_TOKENS=800
+
 DOCS_ENABLED=false
 LOG_LEVEL=INFO
 WEB_CONCURRENCY=2
 FORWARDED_ALLOW_IPS=*
 BACKEND_BIND_ADDRESS=127.0.0.1
-BACKEND_PORT=8000
+BACKEND_PORT=18081
 CADDY_NETWORK=caddy
 ```
 
-`POSTGRES_PASSWORD` nên chỉ gồm chữ và số vì Compose dùng nó trong PostgreSQL
-connection URL. `SESSION_SECRET` phải riêng cho production và không được dùng lại
-giữa các môi trường.
+`OPENAI_API_KEY`, password DB và session secret chỉ nằm trong `docker/.env` trên VM; không thêm chúng vào Vercel hoặc Git.
 
-## 6. Nối backend với Caddy đang chạy
+## 3. Nối backend vào Caddy đang chạy
 
-Nếu Caddy chạy bằng Docker, đảm bảo có external network dùng chung:
+Tạo network dùng chung rồi nối chính container `minute_caddy` vào network đó một lần:
 
 ```bash
 docker network inspect caddy >/dev/null 2>&1 || docker network create caddy
-docker ps --format 'table {{.Names}}\t{{.Networks}}'
+docker network inspect caddy --format '{{json .Containers}}' | grep -q 'minute_caddy' \
+  || docker network connect caddy minute_caddy
+docker inspect minute_caddy --format '{{range .Mounts}}{{println .Source "->" .Destination}}{{end}}'
 ```
 
-Nếu container Caddy chưa nằm trong network này:
-
-```bash
-docker network connect caddy <CADDY_CONTAINER_NAME>
-```
-
-Ghép block trong `docker/Caddyfile.example` vào Caddyfile hiện tại và thay domain:
+Lệnh cuối in ra đường dẫn Caddyfile trên host. Mở file nguồn đó và giữ block:
 
 ```caddyfile
 dauvi-api.duckdns.org {
-    encode zstd gzip
-    reverse_proxy backend:8000
-
-    header {
-        -Server
-        X-Content-Type-Options nosniff
-        Referrer-Policy same-origin
-        Permissions-Policy "camera=(), microphone=(), geolocation=()"
-    }
+  encode zstd gzip
+  reverse_proxy dauvi-api:8000
 }
 ```
 
-Caddy tự lấy và gia hạn HTTPS khi DNS đúng và port 80/443 truy cập được. Kiểm tra
-và reload trong container đang chạy:
+Kiểm tra và reload Caddy:
 
 ```bash
-docker exec <CADDY_CONTAINER_NAME> caddy validate --config /etc/caddy/Caddyfile
-docker exec <CADDY_CONTAINER_NAME> caddy reload --config /etc/caddy/Caddyfile
+docker exec minute_caddy caddy validate --config /etc/caddy/Caddyfile
+docker exec minute_caddy caddy reload --config /etc/caddy/Caddyfile
 ```
 
-Tài liệu Caddy: https://caddyserver.com/docs/caddyfile/directives/reverse_proxy
-
-## 7. Build và chạy backend trên VNPT Cloud
-
-Build riêng image backend nếu cần kiểm tra image:
+## 4. Build và chạy backend
 
 ```bash
 cd /opt/dauvi
-docker build --pull -f docker/backend.Dockerfile -t dauvi-backend:1.0.0 .
+docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml build --pull backend
+docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml up -d database backend
+docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml logs --tail=150 backend
 ```
 
-Chạy đầy đủ PostgreSQL + backend và nối network Caddy:
+Container backend có tên `dauvi-api`. Khi khởi động, nó tự migrate DB và seed 6 sản phẩm + 6 hồ sơ lô.
+
+Kiểm tra:
 
 ```bash
-docker compose \
-  --env-file docker/.env \
-  -f docker/compose.yml \
-  -f docker/compose.caddy.yml \
-  build --pull backend
-
-docker compose \
-  --env-file docker/.env \
-  -f docker/compose.yml \
-  -f docker/compose.caddy.yml \
-  up -d database backend
-```
-
-Entrypoint tự chạy `alembic upgrade head`, seed sáu sản phẩm/sáu lot rồi mới mở
-Uvicorn. Kiểm tra:
-
-```bash
-docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml ps
-docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml logs --tail=200 backend
-curl -fsS http://127.0.0.1:8000/health/ready
+curl -fsS http://127.0.0.1:18081/health/ready
 curl -fsS https://dauvi-api.duckdns.org/health/ready
 curl -fsS https://dauvi-api.duckdns.org/api/v1/products/featured
 ```
 
-## 8. Deploy frontend trên Vercel
+## 5. Biến Vercel
 
-Trong Vercel:
-
-1. Import Git repository.
-2. Đặt **Root Directory** là `frontend`.
-3. Framework Preset: Next.js.
-4. Install Command: `pnpm install --frozen-lockfile`.
-5. Build Command: `pnpm build`.
-6. Chọn project name trước để biết URL ổn định, ví dụ
-   `https://dauvi-coffee.vercel.app`.
-
-Thêm các biến cho môi trường **Production**:
+Trong Vercel đặt **Root Directory** là `frontend`, rồi thêm đúng các biến Production:
 
 ```dotenv
 NEXT_PUBLIC_SITE_URL=https://dauvi-coffee.vercel.app
@@ -244,44 +128,21 @@ NEXT_PUBLIC_ENABLE_AUTH=true
 NEXT_PUBLIC_ENABLE_CHATBOT_API=true
 ```
 
-Không thêm `SESSION_SECRET`, `POSTGRES_PASSWORD` hay DuckDNS token vào Vercel;
-chúng chỉ thuộc VM backend. Sau khi đổi biến Vercel phải redeploy vì các biến
-`NEXT_PUBLIC_*` được đóng vào client bundle lúc build.
+Redeploy frontend sau khi lưu biến. `/backend-api/*` là rewrite cùng origin, nhờ đó cookie đăng nhập `HttpOnly` hoạt động ổn định trên domain Vercel.
 
-Cấu hình `CORS_ORIGINS` trong `docker/.env` phải khớp chính xác
-`NEXT_PUBLIC_SITE_URL`. Sau khi sửa backend env:
+## 6. Kiểm tra production
 
 ```bash
-docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.caddy.yml up -d --force-recreate backend
-```
-
-Vercel Environment Variables:
-https://vercel.com/docs/environment-variables
-
-Vercel external rewrites:
-https://vercel.com/docs/routing/rewrites
-
-## 9. Kiểm tra sau deploy
-
-```bash
-curl -i https://dauvi-api.duckdns.org/health/ready
-curl -i https://dauvi-coffee.vercel.app/backend-api/products/featured
+curl -fsS https://dauvi-coffee.vercel.app/backend-api/products/featured
 ```
 
 Trên browser kiểm tra:
 
-1. `/shop` đọc catalog từ PostgreSQL.
-2. `/traceability/TR4-DLK-26-N02` mở đúng lot demo.
-3. `/advisor` trả top 3.
-4. Chatbot trả response từ `/assistant/messages`.
-5. `/register` tạo tài khoản, DevTools phải thấy cookie `dauvi_session` có
-   `HttpOnly`, `Secure`, `SameSite=Lax`.
-6. Checkout COD tạo đơn `demo-confirmed`.
+- `/register`: tạo tài khoản thật trong PostgreSQL rồi đăng nhập bằng session cookie.
+- Chatbot: hỏi “Cà phê pha phin dưới 120.000 ₫” và “Mã TR4-DLK-26-N02”.
+- `/traceability/TR4-DLK-26-N02`: hiện đúng passport Demo Data.
 
-Nếu dùng URL Vercel khác, cập nhật đồng thời `NEXT_PUBLIC_SITE_URL`,
-`NEXT_PUBLIC_API_BASE_URL` và backend `CORS_ORIGINS`, sau đó redeploy cả hai.
-
-## 10. Cập nhật phiên bản
+## 7. Update backend
 
 ```bash
 cd /opt/dauvi
@@ -291,27 +152,9 @@ docker compose --env-file docker/.env -f docker/compose.yml -f docker/compose.ca
 docker image prune -f
 ```
 
-Frontend được Vercel tự redeploy khi push nhánh production.
-
-## 11. Backup PostgreSQL
+Backup nhanh PostgreSQL:
 
 ```bash
 mkdir -p /opt/dauvi-backups
-docker compose --env-file docker/.env -f docker/compose.yml exec -T database \
-  pg_dump -U dauvi -d dauvi -Fc > "/opt/dauvi-backups/dauvi-$(date +%F-%H%M).dump"
+docker compose --env-file docker/.env -f docker/compose.yml exec -T database pg_dump -U dauvi -d dauvi -Fc > "/opt/dauvi-backups/dauvi-$(date +%F-%H%M).dump"
 ```
-
-Khôi phục vào database trống:
-
-```bash
-cat /opt/dauvi-backups/<BACKUP_FILE>.dump | \
-docker compose --env-file docker/.env -f docker/compose.yml exec -T database \
-  pg_restore -U dauvi -d dauvi --clean --if-exists
-```
-
-## 12. Phạm vi backend production hiện tại
-
-Đã có PostgreSQL, migrations, seed, catalog, truy xuất, Advisor, Coffee Assistant,
-authentication/session và lưu đơn COD demo. Hệ thống chưa tích hợp payment gateway,
-đơn vị vận chuyển, email transactional hay AI/LLM thật. Không gửi dữ liệu thẻ vào
-API này; trạng thái đơn vẫn là `demo-confirmed`.
