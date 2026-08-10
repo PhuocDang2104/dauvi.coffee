@@ -13,7 +13,7 @@ def _values(value: list[str] | None) -> set[str]:
 
 
 def _normalize_search(value: str) -> str:
-    decomposed = unicodedata.normalize("NFD", value.casefold())
+    decomposed = unicodedata.normalize("NFD", value.casefold().replace("đ", "d"))
     return " ".join("".join(char for char in decomposed if not unicodedata.combining(char)).split())
 
 

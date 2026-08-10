@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
+from pgvector.sqlalchemy import VECTOR
 from sqlalchemy import (
     JSON,
     Boolean,
@@ -67,6 +68,7 @@ class Product(Base):
         back_populates="product", cascade="all, delete-orphan", order_by="ProductVariant.sort_order"
     )
     lots: Mapped[list[CoffeeLot]] = relationship(back_populates="product")
+    knowledge_chunks: Mapped[list[KnowledgeChunk]] = relationship(back_populates="product")
 
     __table_args__ = (
         Index("ix_products_published_featured", "published", "featured_order"),
@@ -295,3 +297,81 @@ class AssistantRequest(Base):
     )
 
     __table_args__ = (Index("ix_assistant_request_client_time", "client_hash", "occurred_at"),)
+
+
+class KnowledgeDocument(Base):
+    __tablename__ = "knowledge_documents"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    title: Mapped[str] = mapped_column(String(200), nullable=False)
+    source_type: Mapped[str] = mapped_column(String(40), nullable=False)
+    content_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    published: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    chunks: Mapped[list[KnowledgeChunk]] = relationship(
+        back_populates="document",
+        cascade="all, delete-orphan",
+        order_by="KnowledgeChunk.chunk_index",
+    )
+
+
+class KnowledgeChunk(Base):
+    __tablename__ = "knowledge_chunks"
+
+    id: Mapped[str] = mapped_column(String(100), primary_key=True)
+    document_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_documents.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    product_id: Mapped[str | None] = mapped_column(
+        ForeignKey("products.id", ondelete="CASCADE"), index=True
+    )
+    lot_code: Mapped[str | None] = mapped_column(
+        ForeignKey("coffee_lots.lot_code", ondelete="CASCADE"), index=True
+    )
+    chunk_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    title: Mapped[str] = mapped_column(String(220), nullable=False)
+    content: Mapped[str] = mapped_column(Text, nullable=False)
+    metadata_json: Mapped[dict[str, object]] = mapped_column(JSON, nullable=False, default=dict)
+    token_count: Mapped[int] = mapped_column(Integer, nullable=False)
+    embedding: Mapped[list[float] | None] = mapped_column(
+        VECTOR(384).with_variant(JSON, "sqlite"), nullable=True
+    )
+    embedding_model: Mapped[str | None] = mapped_column(String(160))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False
+    )
+
+    document: Mapped[KnowledgeDocument] = relationship(back_populates="chunks")
+    product: Mapped[Product | None] = relationship(back_populates="knowledge_chunks")
+
+    __table_args__ = (
+        UniqueConstraint("document_id", "chunk_index", name="uq_knowledge_document_chunk"),
+        Index("ix_knowledge_chunks_product_document", "product_id", "document_id"),
+    )
+
+
+class RetrievalLog(Base):
+    __tablename__ = "retrieval_logs"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    query_hash: Mapped[str] = mapped_column(String(64), nullable=False, index=True)
+    intent: Mapped[str] = mapped_column(String(40), nullable=False)
+    result_chunk_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    result_product_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    used_vector: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    used_llm: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    latency_ms: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False, index=True
+    )
+
+    __table_args__ = (Index("ix_retrieval_logs_created_intent", "created_at", "intent"),)

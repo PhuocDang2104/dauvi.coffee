@@ -67,9 +67,7 @@ def _attempt_identity(email: str, request: Request, settings: Settings) -> str:
 
 
 def _to_payload(user: User) -> AuthSessionOut:
-    return AuthSessionOut(
-        user=AuthUserOut(id=user.id, email=user.email, full_name=user.full_name)
-    )
+    return AuthSessionOut(user=AuthUserOut(id=user.id, email=user.email, full_name=user.full_name))
 
 
 def enforce_allowed_origin(request: Request, settings: Settings | None = None) -> None:
@@ -88,13 +86,16 @@ def _check_rate_limit(
     settings: Settings,
 ) -> None:
     window_start = utc_now() - timedelta(minutes=settings.auth_rate_limit_window_minutes)
-    failures = session.scalar(
-        select(func.count(AuthAttempt.id)).where(
-            AuthAttempt.identity_hash == identity_hash,
-            AuthAttempt.succeeded.is_(False),
-            AuthAttempt.occurred_at >= window_start,
+    failures = (
+        session.scalar(
+            select(func.count(AuthAttempt.id)).where(
+                AuthAttempt.identity_hash == identity_hash,
+                AuthAttempt.succeeded.is_(False),
+                AuthAttempt.occurred_at >= window_start,
+            )
         )
-    ) or 0
+        or 0
+    )
     if failures >= settings.auth_rate_limit_attempts:
         retry_after = settings.auth_rate_limit_window_minutes * 60
         raise HTTPException(

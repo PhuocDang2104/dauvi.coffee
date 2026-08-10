@@ -4,16 +4,19 @@ Backend FastAPI cho storefront DẤU VỊ. API cung cấp catalog, hồ sơ truy
 Coffee Advisor, Coffee Assistant, authentication/session bảo mật và đơn hàng COD
 trình diễn được lưu vào PostgreSQL.
 
-Coffee Assistant dùng retrieval cục bộ trên 6 sản phẩm/6 hồ sơ lô trong PostgreSQL,
-sau đó gọi Groq Responses API qua endpoint OpenAI-compatible nếu `AI_ENABLED=true`.
-Khi thiếu key hoặc API lỗi, backend tự dùng câu trả lời catalog rule-based.
+Coffee Assistant chạy workflow LangGraph gồm phân loại ý định, truy vấn có cấu trúc,
+BM25, tìm kiếm vector pgvector, Reciprocal Rank Fusion, grounding và sinh câu trả lời.
+FastEmbed tạo vector 384 chiều ngay trong backend; Groq Responses API chỉ nhận context
+đã giới hạn từ catalog. Khi thiếu key hoặc API lỗi, hệ thống trả lời xác định từ cùng
+nguồn dữ liệu và không tự tạo sản phẩm ngoài catalog.
 
 Các nhóm endpoint production: `/products`, `/lots`, `/advisor`, `/assistant`,
 `/auth`, `/orders` dưới prefix `/api/v1`, cùng `/health/live` và `/health/ready`.
 
 ## Chạy trực tiếp
 
-Yêu cầu Python 3.11+ và PostgreSQL 17.
+Yêu cầu Python 3.11+ và PostgreSQL 17 có extension pgvector. Khi chỉ phát triển nhanh
+với SQLite, đặt `VECTOR_SEARCH_ENABLED=false`; BM25 và toàn bộ LangGraph vẫn hoạt động.
 
 ```bash
 python -m venv .venv
@@ -26,7 +29,7 @@ uvicorn app.main:app --reload
 ```
 
 API mặc định ở `http://localhost:8000`, tài liệu OpenAPI ở `/docs` và endpoint
-sẵn sàng ở `/health/ready`.
+sẵn sàng ở `/health/ready`. Trạng thái RAG chi tiết ở `/health/rag`.
 
 ## Kiểm tra chất lượng
 

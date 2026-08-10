@@ -150,9 +150,9 @@ interface AdvisorResponse {
 }
 ```
 
-Frontend ghép `productId` với catalog để tạo `ProductRecommendation`. Backend hiện
-dùng cùng bộ quy tắc xác định và có thể được thay bằng AI/RAG ở giai đoạn sau mà
-không đổi response contract.
+Frontend ghép `productId` với catalog để tạo `ProductRecommendation`. Advisor sáu
+bước tiếp tục dùng bộ quy tắc có trọng số để kết quả ổn định; Coffee Assistant bên
+dưới sử dụng LangGraph và hybrid RAG cho hội thoại tự do.
 
 ## Cart và checkout
 
@@ -262,8 +262,10 @@ same-origin rewrite `/backend-api`; CORS vẫn giữ danh sách origin chính x�
 
 ## Coffee Assistant
 
-Backend truy xuất tối đa ba sản phẩm/lô phù hợp trực tiếp từ PostgreSQL rồi gửi context
-giới hạn đó cho Groq Responses API. Frontend dùng fallback local khi API chưa bật;
+Backend chạy workflow LangGraph: phân loại ý định, structured product retrieval,
+BM25, pgvector cosine search, Reciprocal Rank Fusion, grounding theo ID thật và sinh
+câu trả lời bằng Groq. Knowledge base hiện có 7 tài liệu/21 chunks từ sáu sản phẩm,
+sáu lô demo và chính sách minh bạch. Frontend dùng fallback local khi API chưa bật;
 khi `NEXT_PUBLIC_ENABLE_CHATBOT_API=true`, widget gọi:
 
 ```http
@@ -279,15 +281,20 @@ Body `{ "message": string }`; response:
 }
 ```
 
-Nội dung AI dùng structured output, không được thêm giá/chứng nhận/claim ngoài context.
-Action luôn do backend tạo từ route catalog thật. Khi thiếu key hoặc Groq lỗi, backend
-tự trả kết quả rule-based từ cùng dữ liệu; endpoint có rate limit lưu trong PostgreSQL.
+Nội dung AI bị giới hạn bởi context đã retrieval, không được thêm giá/chứng nhận/claim
+ngoài dữ liệu. Action luôn do backend tạo từ route catalog thật. Khi không có dữ liệu,
+workflow từ chối trả lời ngoài phạm vi; khi Groq lỗi, backend dùng deterministic fallback.
+Mỗi lượt retrieval lưu query hash, intent, chunk/product ID, latency và cờ vector/LLM;
+không lưu nguyên văn câu hỏi trong retrieval log.
 
 ## Healthcheck
 
 ```http
 GET /health/live
 GET /health/ready
+GET /health/rag
 ```
 
-`/health/ready` chỉ trả `200` khi backend kết nối được PostgreSQL.
+`/health/ready` chỉ trả `200` khi PostgreSQL và vector index bắt buộc đã sẵn sàng.
+`/health/rag` công bố workflow, retrieval mode, số chunks/vector, embedding model và
+nhà cung cấp LLM để kiểm tra sau deploy mà không làm lộ secret.

@@ -2,7 +2,7 @@ name: dau-vi
 
 services:
   database:
-    image: postgres:17.10-alpine3.23
+    image: pgvector/pgvector:0.8.6-pg17-bookworm
     restart: unless-stopped
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-dauvi}
@@ -50,6 +50,14 @@ services:
       AUTH_RATE_LIMIT_WINDOW_MINUTES: ${AUTH_RATE_LIMIT_WINDOW_MINUTES:-15}
       ASSISTANT_RATE_LIMIT_REQUESTS: ${ASSISTANT_RATE_LIMIT_REQUESTS:-12}
       ASSISTANT_RATE_LIMIT_WINDOW_MINUTES: ${ASSISTANT_RATE_LIMIT_WINDOW_MINUTES:-1}
+      RAG_ENABLED: ${RAG_ENABLED:-true}
+      VECTOR_SEARCH_ENABLED: ${VECTOR_SEARCH_ENABLED:-true}
+      VECTOR_SEARCH_REQUIRED: ${VECTOR_SEARCH_REQUIRED:-true}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
+      EMBEDDING_DIMENSIONS: ${EMBEDDING_DIMENSIONS:-384}
+      EMBEDDING_CACHE_DIR: ${EMBEDDING_CACHE_DIR:-/opt/fastembed-cache}
+      RAG_TOP_K: ${RAG_TOP_K:-6}
+      RAG_RRF_K: ${RAG_RRF_K:-60}
       AI_ENABLED: ${AI_ENABLED:-false}
       GROQ_API_KEY: ${GROQ_API_KEY:-}
       GROQ_BASE_URL: ${GROQ_BASE_URL:-https://api.groq.com/openai/v1}

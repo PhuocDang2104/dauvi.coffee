@@ -49,7 +49,7 @@ class GeneratedAssistantMessage(BaseModel):
 
 
 def _normalize(value: str) -> str:
-    decomposed = unicodedata.normalize("NFD", value.lower())
+    decomposed = unicodedata.normalize("NFD", value.lower().replace("đ", "d"))
     without_marks = "".join(
         character for character in decomposed if unicodedata.category(character) != "Mn"
     )
@@ -324,12 +324,12 @@ def _fallback_message(products: list[Product], raw_message: str) -> str:
     return "Mình có thể tư vấn theo cách pha, độ đậm, vị đắng, ngân sách hoặc mã lô."
 
 
-def _developer_prompt(context: str) -> str:
+def _developer_prompt(context: str, knowledge_context: str = "") -> str:
     return f"""Bạn là Coffee Assistant của DẤU VỊ, tư vấn bằng tiếng Việt tự nhiên và ngắn gọn.
 
 Ràng buộc:
-- Chỉ dùng dữ liệu trong <catalog_context>; không thêm kiến thức, giá, chứng nhận
-  hoặc claim môi trường từ bên ngoài.
+- Chỉ dùng dữ liệu trong <catalog_context> và <retrieved_knowledge>; không thêm
+  kiến thức, giá, chứng nhận hoặc claim môi trường từ bên ngoài hai khối này.
 - Trả lời đúng câu hỏi trong 2–4 câu, tối đa 550 ký tự; không dùng Markdown,
   URL hay danh sách action.
 - Nếu context không đủ, nói rõ giới hạn và gợi ý người dùng hỏi về gu,
@@ -343,13 +343,18 @@ Ràng buộc:
 
 <catalog_context>
 {context}
-</catalog_context>"""
+</catalog_context>
+
+<retrieved_knowledge>
+{knowledge_context or "Không có knowledge chunk bổ sung."}
+</retrieved_knowledge>"""
 
 
 async def _generate_ai_message(
     products: list[Product],
     raw_message: str,
     settings: Settings,
+    knowledge_context: str = "",
 ) -> str | None:
     if not settings.ai_enabled or not settings.groq_api_key:
         return None
@@ -364,7 +369,12 @@ async def _generate_ai_message(
         response = await client.responses.parse(
             model=settings.groq_model,
             input=[
-                {"role": "system", "content": _developer_prompt(_catalog_context(products))},
+                {
+                    "role": "system",
+                    "content": _developer_prompt(
+                        _catalog_context(products), knowledge_context=knowledge_context
+                    ),
+                },
                 {"role": "user", "content": raw_message},
             ],
             text_format=GeneratedAssistantMessage,
@@ -383,10 +393,17 @@ async def answer_catalog_question(
     raw_message: str,
     settings: Settings,
 ) -> AssistantResponse:
-    catalog = _load_catalog(session)
-    retrieved = _retrieve_products(catalog, raw_message)
-    generated = await _generate_ai_message(retrieved, raw_message, settings)
-    return AssistantResponse(
-        message=generated or _fallback_message(retrieved, raw_message),
-        actions=_actions(retrieved, raw_message),
-    )
+    if not settings.rag_enabled:
+        catalog = _load_catalog(session)
+        retrieved = _retrieve_products(catalog, raw_message)
+        generated = await _generate_ai_message(retrieved, raw_message, settings)
+        return AssistantResponse(
+            message=generated or _fallback_message(retrieved, raw_message),
+            actions=_actions(retrieved, raw_message),
+        )
+
+    # Imported lazily to keep rate-limit helpers usable even if the graph runtime
+    # is unavailable during a constrained local maintenance task.
+    from app.services.assistant_graph import run_assistant_graph
+
+    return await run_assistant_graph(session, raw_message, settings)

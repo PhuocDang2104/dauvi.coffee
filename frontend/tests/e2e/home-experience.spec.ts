@@ -31,15 +31,21 @@ test("homepage dùng banner, bốn card và flavor map tương tác", async ({ p
 
 test("chatbot nổi trả gợi ý local mà không gọi backend", async ({ page }) => {
   await page.goto("/");
+  const heroHeading = page.getByRole("heading", {
+    name: "Cà phê Việt Nam, được kể đến từng lô.",
+    level: 1,
+  });
+  await expect(heroHeading).toBeVisible();
+  await expect.poll(async () => (await heroHeading.boundingBox())?.x ?? 0).toBeGreaterThan(0);
   const before = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
-    headingLeft: document.querySelector("h1")?.getBoundingClientRect().left,
+    headingLeft: document.querySelector("main h1")?.getBoundingClientRect().left,
   }));
   await page.getByRole("button", { name: "Mở trợ lý cà phê DẤU VỊ" }).click();
   await expect(page.getByRole("dialog", { name: "DẤU VỊ Coffee Assistant" })).toBeVisible();
   const after = await page.evaluate(() => ({
     clientWidth: document.documentElement.clientWidth,
-    headingLeft: document.querySelector("h1")?.getBoundingClientRect().left,
+    headingLeft: document.querySelector("main h1")?.getBoundingClientRect().left,
   }));
   expect(after).toEqual(before);
   await page.getByRole("button", { name: "Tìm cà phê pha phin" }).click();

@@ -1,12 +1,26 @@
 from __future__ import annotations
 
+import hashlib
+import logging
 from datetime import date
 from typing import Any
 
 from sqlalchemy.orm import Session
 
+from app.config import Settings, get_settings
 from app.db import SessionLocal
-from app.models import CoffeeLot, EvidenceItem, LotTimelineEvent, Product, ProductVariant
+from app.models import (
+    CoffeeLot,
+    EvidenceItem,
+    KnowledgeChunk,
+    KnowledgeDocument,
+    LotTimelineEvent,
+    Product,
+    ProductVariant,
+)
+from app.services.embeddings import EmbeddingUnavailableError, embed_texts
+
+logger = logging.getLogger(__name__)
 
 DEMO_DISCLOSURE = "Dữ liệu lô và đơn vị sản xuất đang được mô phỏng cho mục đích trình diễn đồ án."
 
@@ -580,7 +594,195 @@ def _set_fields(target: Any, values: dict[str, Any]) -> None:
         setattr(target, key, value)
 
 
-def seed_database(session: Session) -> None:
+def _variant_knowledge_label(variant: dict[str, Any]) -> str:
+    if variant["format"] == "drip-bag":
+        package = f"{variant['drip_bag_count']} gói × {variant['drip_bag_weight_grams']} g"
+    else:
+        package = f"{variant['format']} {variant['weight_grams']} g"
+    return f"{package}, giá {variant['price_amount']:,} VND".replace(",", ".")
+
+
+def _knowledge_documents() -> list[dict[str, Any]]:
+    lots_by_product = {lot["product_id"]: lot for lot in LOTS}
+    documents: list[dict[str, Any]] = []
+    for product in PRODUCTS:
+        lot = lots_by_product[product["id"]]
+        variants = product["variants"]
+        variant_text = "; ".join(_variant_knowledge_label(variant) for variant in variants)
+        chunks = [
+            {
+                "title": f"Hồ sơ hương vị {product['display_name']}",
+                "content": (
+                    f"{product['display_name']} có mã sản phẩm {product['id']}, thuộc loài "
+                    f"{product['species']}, giống {product['variety']}, vùng "
+                    f"{product['region_label']} "
+                    f"ở cao độ {product['altitude_label']}. Cà phê sơ chế {product['process']}, "
+                    f"rang {product['roast_level']}; nốt vị gồm "
+                    f"{', '.join(product['flavor_notes'])}. "
+                    f"Chỉ số đắng {product['bitterness']}/5, chua {product['acidity']}/5, "
+                    f"ngọt {product['sweetness']}/5, body {product['body']}/5, "
+                    f"hương {product['aroma']}/5 và caffeine {product['caffeine']}. "
+                    f"{product['proposition']}"
+                ),
+                "metadata": {"kind": "product-profile", "species": product["species"]},
+                "lot_code": None,
+            },
+            {
+                "title": f"Cách pha và quy cách {product['short_name']}",
+                "content": (
+                    f"{product['short_name']} phù hợp các cách pha "
+                    f"{', '.join(product['brew_methods'])}. Các biến thể còn hàng gồm "
+                    f"{variant_text}. {product['story']} Khi tư vấn phải lấy giá từ catalog "
+                    "hiện tại và không tự tạo "
+                    "quy cách ngoài danh sách biến thể."
+                ),
+                "metadata": {"kind": "brew-and-commerce"},
+                "lot_code": None,
+            },
+            {
+                "title": f"Hồ sơ lô {lot['lot_code']}",
+                "content": (
+                    f"Mã lô {lot['lot_code']} thuộc {product['display_name']}; vùng mô phỏng "
+                    f"{lot['district']}, {lot['province']}; giống {lot['variety']}; "
+                    f"sơ chế {lot['process']}; niên vụ {lot['harvest_year']}; "
+                    f"ngày rang {lot['roast_date'].isoformat()} và đóng gói "
+                    f"{lot['packaging_date'].isoformat()}. {DEMO_DISCLOSURE}"
+                ),
+                "metadata": {"kind": "traceability", "evidenceLevel": "demo"},
+                "lot_code": lot["lot_code"],
+            },
+        ]
+        documents.append(
+            {
+                "id": f"catalog-{product['id']}",
+                "title": f"Knowledge base — {product['display_name']}",
+                "source_type": "catalog-seed",
+                "product_id": product["id"],
+                "chunks": chunks,
+            }
+        )
+
+    documents.append(
+        {
+            "id": "policy-commerce-and-transparency",
+            "title": "Chính sách tư vấn, giao hàng và minh bạch DẤU VỊ",
+            "source_type": "system-policy",
+            "product_id": None,
+            "chunks": [
+                {
+                    "title": "Nguyên tắc minh bạch dữ liệu",
+                    "content": (
+                        f"Tất cả tên nông hộ, hợp tác xã và chi tiết lô hiện là Demo Data. "
+                        f"{DEMO_DISCLOSURE} Reference Data chỉ là dữ liệu tham khảo, không phải "
+                        "chứng nhận và không được chuyển thành claim môi trường của sản phẩm."
+                    ),
+                    "metadata": {"kind": "transparency-policy"},
+                    "lot_code": None,
+                },
+                {
+                    "title": "Chính sách checkout trình diễn",
+                    "content": (
+                        "Checkout hiện hỗ trợ COD trình diễn. Backend tự đọc giá variant, kiểm tra "
+                        "sản phẩm, quy cách xay và số lượng; đơn từ 499.000 VND được miễn phí giao "
+                        "hàng, đơn thấp hơn có phí 30.000 VND. Chưa có giao dịch thanh toán thật."
+                    ),
+                    "metadata": {"kind": "commerce-policy"},
+                    "lot_code": None,
+                },
+                {
+                    "title": "Phạm vi Coffee Assistant",
+                    "content": (
+                        "Coffee Assistant chỉ tư vấn sáu sản phẩm hiện có, cách pha, giá, "
+                        "vùng trồng "
+                        "và hồ sơ lô demo. Nếu không tìm thấy dữ liệu phù hợp, chatbot phải nói rõ "
+                        "giới hạn, không bịa sản phẩm, chứng nhận, review hay số liệu bền vững."
+                    ),
+                    "metadata": {"kind": "assistant-policy"},
+                    "lot_code": None,
+                },
+            ],
+        }
+    )
+    return documents
+
+
+def _seed_knowledge_base(session: Session, settings: Settings) -> tuple[int, int]:
+    documents = _knowledge_documents()
+    chunks_needing_embeddings: list[KnowledgeChunk] = []
+
+    for document_data in documents:
+        chunk_values = document_data["chunks"]
+        content_hash = hashlib.sha256(
+            "\n".join(chunk["content"] for chunk in chunk_values).encode("utf-8")
+        ).hexdigest()
+        document = session.get(KnowledgeDocument, document_data["id"])
+        if document is None:
+            document = KnowledgeDocument(id=document_data["id"])
+            session.add(document)
+        _set_fields(
+            document,
+            {
+                "title": document_data["title"],
+                "source_type": document_data["source_type"],
+                "content_hash": content_hash,
+                "published": True,
+            },
+        )
+        session.flush()
+
+        existing = {chunk.id: chunk for chunk in document.chunks}
+        expected_ids: set[str] = set()
+        for index, values in enumerate(chunk_values):
+            chunk_id = f"{document.id}-{index + 1:02d}"
+            expected_ids.add(chunk_id)
+            chunk = existing.get(chunk_id)
+            if chunk is None:
+                chunk = KnowledgeChunk(id=chunk_id, document_id=document.id)
+                session.add(chunk)
+            content_changed = chunk.content != values["content"]
+            _set_fields(
+                chunk,
+                {
+                    "document_id": document.id,
+                    "product_id": document_data["product_id"],
+                    "lot_code": values["lot_code"],
+                    "chunk_index": index,
+                    "title": values["title"],
+                    "content": values["content"],
+                    "metadata_json": values["metadata"],
+                    "token_count": len(values["content"].split()),
+                },
+            )
+            if content_changed:
+                chunk.embedding = None
+                chunk.embedding_model = None
+            if settings.vector_search_enabled and (
+                chunk.embedding is None or chunk.embedding_model != settings.embedding_model
+            ):
+                chunks_needing_embeddings.append(chunk)
+        for chunk_id, chunk in existing.items():
+            if chunk_id not in expected_ids:
+                session.delete(chunk)
+        session.flush()
+
+    if chunks_needing_embeddings:
+        try:
+            vectors = embed_texts([chunk.content for chunk in chunks_needing_embeddings], settings)
+        except EmbeddingUnavailableError:
+            if settings.vector_search_required:
+                raise
+            logger.warning("Knowledge base seeded without vectors; BM25 fallback remains active.")
+        else:
+            for chunk, vector in zip(chunks_needing_embeddings, vectors, strict=True):
+                chunk.embedding = vector
+                chunk.embedding_model = settings.embedding_model
+
+    session.flush()
+    return len(documents), sum(len(document["chunks"]) for document in documents)
+
+
+def seed_database(session: Session, settings: Settings | None = None) -> None:
+    settings = settings or get_settings()
     for product_data in PRODUCTS:
         values = dict(product_data)
         variant_values = values.pop("variants")
@@ -636,13 +838,19 @@ def seed_database(session: Session) -> None:
                 session.delete(event)
         session.flush()
 
+    document_count, chunk_count = _seed_knowledge_base(session, settings)
     session.commit()
+    logger.info(
+        "Seeded knowledge base with %s documents and %s chunks.", document_count, chunk_count
+    )
 
 
 def main() -> None:
     with SessionLocal() as session:
         seed_database(session)
-        print(f"Seeded {len(PRODUCTS)} products and {len(LOTS)} coffee lots.")
+        print(
+            f"Seeded {len(PRODUCTS)} products, {len(LOTS)} coffee lots and grounded RAG knowledge."
+        )
 
 
 if __name__ == "__main__":
