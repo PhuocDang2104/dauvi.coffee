@@ -703,6 +703,46 @@ def _knowledge_documents() -> list[dict[str, Any]]:
             ],
         }
     )
+    documents.append(
+        {
+            "id": "guide-brew-at-home",
+            "title": "Hướng dẫn pha tại nhà DẤU VỊ",
+            "source_type": "brew-guide",
+            "product_id": None,
+            "chunks": [
+                {
+                    "title": "Hướng dẫn pha phin Việt Nam",
+                    "content": (
+                        "Phin Việt Nam dùng cà phê xay vừa–mịn, liều tham khảo 20 g với "
+                        "80–100 ml nước và thời gian 4–6 phút. TRS1, TR4 và Xanh Lùn là "
+                        "những lựa chọn phù hợp khi muốn body dày và hậu vị đậm."
+                    ),
+                    "metadata": {"kind": "brew-guide", "method": "phin"},
+                    "lot_code": None,
+                },
+                {
+                    "title": "Hướng dẫn pour-over và AeroPress",
+                    "content": (
+                        "Pour-over hoặc AeroPress dùng mức xay vừa, liều 15–17 g với "
+                        "220–240 ml nước và thời gian khoảng 2–3 phút. Catimor, Bourbon "
+                        "và TR9 phù hợp khi ưu tiên độ thanh, độ ngọt và hương rõ."
+                    ),
+                    "metadata": {"kind": "brew-guide", "method": "pour-over-aeropress"},
+                    "lot_code": None,
+                },
+                {
+                    "title": "Hướng dẫn drip bag",
+                    "content": (
+                        "Drip bag Catimor được định lượng 12 g mỗi gói, dùng 180–200 ml nước "
+                        "và thời gian 2–3 phút. Đây là lựa chọn pha nhanh có sẵn trong catalog; "
+                        "không tự thay thế bằng sản phẩm không có quy cách drip bag."
+                    ),
+                    "metadata": {"kind": "brew-guide", "method": "drip-bag"},
+                    "lot_code": None,
+                },
+            ],
+        }
+    )
     return documents
 
 

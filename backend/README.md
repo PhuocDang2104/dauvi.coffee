@@ -4,11 +4,12 @@ Backend FastAPI cho storefront DẤU VỊ. API cung cấp catalog, hồ sơ truy
 Coffee Advisor, Coffee Assistant, authentication/session bảo mật và đơn hàng COD
 trình diễn được lưu vào PostgreSQL.
 
-Coffee Assistant chạy workflow LangGraph gồm phân loại ý định, truy vấn có cấu trúc,
-BM25, tìm kiếm vector pgvector, Reciprocal Rank Fusion, grounding và sinh câu trả lời.
-FastEmbed tạo vector 384 chiều ngay trong backend; Groq Responses API chỉ nhận context
-đã giới hạn từ catalog. Khi thiếu key hoặc API lỗi, hệ thống trả lời xác định từ cùng
-nguồn dữ liệu và không tự tạo sản phẩm ngoài catalog.
+Coffee Assistant chạy workflow LangGraph với Groq semantic intent router. Router chỉ
+chọn một trong bốn tool node: Coffee Retrieval, Traceability, Brew Knowledge hoặc
+Commerce Policy; greeting và câu ngoài phạm vi không chạy retrieval. Mỗi tool dùng
+structured retrieval, BM25 và/hoặc pgvector phù hợp trước bước grounding và sinh câu
+trả lời. FastEmbed tạo vector 384 chiều ngay trong backend; khi Groq router lỗi hoặc
+tắt, bộ định tuyến xác định tiếp quản để dịch vụ vẫn hoạt động mà không hallucinate.
 
 Các nhóm endpoint production: `/products`, `/lots`, `/advisor`, `/assistant`,
 `/auth`, `/orders` dưới prefix `/api/v1`, cùng `/health/live` và `/health/ready`.

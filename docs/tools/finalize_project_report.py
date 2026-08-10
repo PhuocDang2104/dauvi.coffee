@@ -307,10 +307,10 @@ def write_chapter_three(writer: Writer, diagrams: Path) -> None:
             "Bảng 3.8. Đặc tả UC04 – Chatbot tư vấn",
             [
                 ("Actor", "Guest/Customer, AI Chatbot"),
-                ("Tiền điều kiện", "Knowledge base đã seed; khi vector bắt buộc, 21 chunks phải có embedding."),
-                ("Luồng chính", "1) Gửi câu hỏi. 2) LangGraph phân loại intent. 3) Structured retrieval lấy ứng viên. 4) BM25 và pgvector tìm chunks. 5) RRF hợp nhất. 6) Grounding theo product published. 7) Groq sinh câu trả lời. 8) Trả message/actions."),
-                ("Luồng thay thế", "Greeting hoặc ngoài phạm vi đi thẳng scope fallback; không có dữ liệu nói rõ giới hạn; Groq lỗi dùng deterministic fallback; vượt rate limit trả 429."),
-                ("Hậu điều kiện", "Ghi retrieval log đã băm query; action chỉ trỏ tới route sản phẩm/truy xuất thật."),
+                ("Tiền điều kiện", "Knowledge base đã seed; khi vector bắt buộc, 24 chunks phải có embedding."),
+                ("Luồng chính", "1) Gửi câu hỏi. 2) Groq semantic router trả đúng một route trong enum. 3) Conditional edge chỉ kích hoạt tool node tương ứng. 4) Tool truy vấn dữ liệu có cấu trúc và/hoặc BM25 + pgvector. 5) RRF hợp nhất bằng chứng. 6) Grounding kiểm tra product/lot thật. 7) Groq sinh câu trả lời từ context giới hạn. 8) Trả message/actions và ghi audit."),
+                ("Luồng thay thế", "Router Groq lỗi dùng deterministic router; greeting/out-of-scope không chạy retrieval; không có bằng chứng thì nói rõ giới hạn; bước generate lỗi dùng fallback theo route; vượt rate limit trả 429."),
+                ("Hậu điều kiện", "Ghi route, query hash, chunk IDs, product IDs và cờ sử dụng vector/LLM; action chỉ trỏ tới route thật."),
             ],
         ),
         (
@@ -341,9 +341,11 @@ def write_chapter_three(writer: Writer, diagrams: Path) -> None:
     writer.paragraph(
         "FastEmbed chạy trong backend để tạo embedding 384 chiều bằng mô hình multilingual "
         "MiniLM. Vector được lưu trực tiếp trong cột vector(384) của PostgreSQL và lập chỉ "
-        "mục HNSW cosine. Groq là dịch vụ sinh ngôn ngữ, nhưng không truy cập database; nó "
-        "chỉ nhận tối đa top-k chunks và tối đa ba sản phẩm đã qua grounding. Thiết kế này "
-        "giữ retrieval và business rule ở phía hệ thống, thay vì giao toàn bộ quyết định cho LLM."
+        "mục HNSW cosine. Groq đảm nhiệm hai tác vụ bị giới hạn: chọn một route theo schema enum "
+        "và sinh câu trả lời từ context đã grounding. LLM không truy cập database và không tự "
+        "thực thi công cụ; LangGraph mới cấp quyền chạy đúng một tool node bằng conditional edge. "
+        "Bước sinh chỉ nhận top-k chunks và tối đa ba sản phẩm đã kiểm tra, còn business rule, "
+        "đường dẫn action và dữ liệu nguồn vẫn do backend kiểm soát."
     )
 
     writer.heading("3.6. Thiết kế luồng xử lý")
@@ -376,10 +378,12 @@ def write_chapter_three(writer: Writer, diagrams: Path) -> None:
     )
     writer.heading("3.6.5. Chatbot tư vấn", level=3)
     writer.paragraph(
-        "Luồng chatbot là graph hữu hạn có nhánh điều kiện. Intent greeting/out-of-scope không "
-        "gọi retrieval/LLM không cần thiết. Các intent product, brew, traceability và commerce "
-        "đi qua structured retrieval, hybrid retrieval, grounding, generate và audit. Mỗi node "
-        "nhận/trả một phần AssistantGraphState, nhờ đó dễ kiểm thử và thay thế độc lập."
+        "Luồng chatbot là graph hữu hạn có semantic router và nhánh điều kiện. Groq đọc câu hỏi, "
+        "nhưng chỉ được trả một trong sáu route: greeting, coffee-product, traceability, brewing, "
+        "commerce hoặc out-of-scope. LangGraph dùng route này để chạy đúng một trong bốn tool node; "
+        "greeting và out-of-scope đi thẳng tới phản hồi trực tiếp nên không truy vấn knowledge base. "
+        "Các nhánh dùng tool hội tụ tại grounding, generate và audit. Mỗi node nhận/trả một phần "
+        "AssistantGraphState, nhờ đó có thể kiểm thử, quan sát và thay thế độc lập."
     )
 
     writer.page_break()
@@ -438,9 +442,10 @@ def write_chapter_three(writer: Writer, diagrams: Path) -> None:
         font_size=9.8,
     )
     writer.paragraph(
-        "Seed RAG gồm 7 knowledge documents và 21 chunks: mỗi sản phẩm có ba chunks về hồ "
-        "sơ hương vị, cách pha/quy cách và truy xuất; tài liệu chính sách chung có ba chunks "
-        "về minh bạch, checkout demo và phạm vi chatbot. Seed idempotent cập nhật content_hash "
+        "Seed RAG gồm 8 knowledge documents và 24 chunks: sáu tài liệu sản phẩm tạo 18 chunks "
+        "về hương vị, quy cách và truy xuất; tài liệu chính sách chung tạo ba chunks về minh bạch, "
+        "checkout và phạm vi chatbot; brew guide tạo ba chunks cho phin, pour-over/AeroPress và "
+        "drip bag. Seed idempotent cập nhật content_hash "
         "và chỉ tạo lại embedding khi nội dung hoặc embedding model thay đổi."
     )
 
@@ -469,33 +474,37 @@ def write_chapter_three(writer: Writer, diagrams: Path) -> None:
             ("POST", "/api/v1/orders", "Tạo đơn COD demo", "Public + idempotency"),
             ("GET", "/health/live", "Tiến trình còn sống", "Infrastructure"),
             ("GET", "/health/ready", "DB/vector bắt buộc sẵn sàng", "Infrastructure"),
-            ("GET", "/health/rag", "Workflow, retrieval mode và số vectors", "Infrastructure"),
+            ("GET", "/health/rag", "Workflow, routing mode, retrieval và số vectors", "Infrastructure"),
         ],
         widths_cm=[1.5, 5.3, 5.6, 2.4],
         font_size=9.5,
     )
 
     writer.heading("3.10. Thiết kế Chatbot AI")
-    writer.heading("3.10.1. Workflow LangGraph", level=3)
+    writer.heading("3.10.1. Semantic router và workflow LangGraph", level=3)
     writer.figure(diagrams / "12-langgraph-workflow.png", "Hình 3.8. Workflow LangGraph và cơ chế grounding")
     writer.paragraph(
-        "StateGraph được biên dịch với các node understand, structured_retrieval, "
-        "hybrid_retrieval, grounding, generate, scope_fallback và audit. Edge điều kiện sau "
-        "understand tách greeting/out-of-scope khỏi luồng RAG. Graph trả đúng contract "
-        "AssistantResponse gồm message và actions, không trả raw prompt hoặc vector."
+        "StateGraph được biên dịch một lần với intent_router, direct_response, scope_fallback, "
+        "bốn tool node chuyên biệt, grounding, generate và audit. Conditional edge sau router "
+        "là cơ chế cấp quyền công cụ: mỗi request chỉ đi vào một nhánh, không chạy toàn bộ retrieval. "
+        "Đây là controlled agentic routing, không phải agent tự trị có quyền gọi công cụ tùy ý. "
+        "Graph trả đúng AssistantResponse gồm message và actions, không trả raw prompt hoặc vector."
     )
-    writer.heading("3.10.2. Phân tích nhu cầu người dùng", level=3)
+    writer.heading("3.10.2. LLM intent routing và fallback", level=3)
     writer.paragraph(
-        "Node understand chuẩn hóa Unicode, bỏ dấu để so khớp ổn định và phân loại bảy intent: "
-        "greeting, product-advice, product-fact, traceability, brew-guide, commerce và "
-        "out-of-scope. Structured retrieval đồng thời nhận diện ngân sách, từ khóa giống cà "
-        "phê, cách pha và mã sản phẩm để tạo tập ứng viên ban đầu."
+        "Router gửi Groq một prompt phân loại tối thiểu và ép kết quả theo AssistantRouteDecision. "
+        "Sáu route hợp lệ gồm greeting, coffee-product, traceability, brewing, commerce và "
+        "out-of-scope; prompt người dùng được xem là dữ liệu, không phải chỉ thị thay đổi quyền tool. "
+        "Nếu thiếu key, timeout hoặc output không hợp lệ, deterministic router chuẩn hóa Unicode, "
+        "nhận diện mã lô và từ khóa nghiệp vụ để hệ thống vẫn hoạt động an toàn."
     )
-    writer.heading("3.10.3. Structured Product Retrieval", level=3)
+    writer.heading("3.10.3. Các tool node chuyên biệt", level=3)
     writer.paragraph(
-        "Truy vấn có cấu trúc sử dụng product/variant/lots đã published. Với câu có ngân sách, "
-        "hard filter loại variant vượt mức trước khi đưa product ID vào hybrid retrieval. Cách "
-        "này bảo đảm yêu cầu “dưới 120.000 ₫” không bị LLM phá vỡ và action luôn có route thật."
+        "Coffee Retrieval Tool lấy ứng viên từ product/variant published, áp dụng hard filter ngân "
+        "sách rồi hybrid retrieval trong phạm vi ứng viên. Traceability Tool ưu tiên mã lô và các "
+        "chunk nguồn gốc. Brew Knowledge Tool truy vấn cả hướng dẫn pha chung lẫn sản phẩm phù hợp. "
+        "Commerce Policy Tool chỉ lấy policy chunks, không đưa catalog vào khi không cần. Thiết kế "
+        "least-privilege này giúp route quyết định phạm vi dữ liệu trước khi LLM tạo câu trả lời."
     )
     writer.heading("3.10.4. BM25 và Vector Retrieval", level=3)
     writer.paragraph(
@@ -520,8 +529,9 @@ def write_chapter_three(writer: Writer, diagrams: Path) -> None:
             ("Có sản phẩm phù hợp", "Hybrid retrieval + grounding + Groq.", "Gợi ý tối đa 3 sản phẩm, lý do và action thật."),
             ("Không khớp hoàn toàn", "Giữ hard constraint; dùng ứng viên gần nhất chỉ khi không vi phạm ngân sách/format.", "Nói rõ mức độ phù hợp, không tuyên bố khớp tuyệt đối."),
             ("Không có dữ liệu", "Scope fallback hoặc empty retrieval.", "Nói chưa có thông tin và giới hạn phạm vi."),
-            ("Groq lỗi/timeout", "Deterministic fallback từ grounded products.", "Endpoint vẫn trả câu trả lời catalog, không bịa."),
-            ("Ngoài phạm vi", "Không gọi LLM; trả lời từ chối có hướng dẫn.", "Không trả kiến thức tự do ngoài hệ thống."),
+            ("Router Groq lỗi/timeout", "Deterministic router chọn route bằng mã lô và từ khóa nghiệp vụ.", "Workflow vẫn chọn đúng một nhánh; không mở rộng quyền tool."),
+            ("Generate Groq lỗi/timeout", "Fallback theo route từ grounded products/chunks.", "Endpoint vẫn trả câu trả lời có nguồn, không bịa."),
+            ("Ngoài phạm vi", "Router chọn out-of-scope rồi trả lời từ chối có hướng dẫn, không retrieval.", "Không trả kiến thức tự do ngoài hệ thống."),
         ],
         widths_cm=[3.0, 6.2, 5.6],
     )
@@ -639,14 +649,15 @@ def write_chapter_four(writer: Writer) -> None:
         "đọc product/variant hiện hành, kiểm tra grind/in_stock/quantity, tính miễn phí giao hàng "
         "từ 499.000 ₫ và ghi order + item snapshots trong transaction."
     )
-    writer.heading("4.3.3. LangGraph hybrid RAG", level=3)
+    writer.heading("4.3.3. LangGraph semantic routing và hybrid RAG", level=3)
     writer.paragraph(
-        "Backend đã cài LangGraph thật, không chỉ mô tả trong tài liệu. Workflow có bảy node và "
-        "nhánh điều kiện; graph được compile một lần và nhận session/settings qua runtime context "
-        "riêng cho từng request. Retrieval kết hợp BM25 với pgvector cosine, sau đó RRF. FastEmbed model "
-        "được tải sẵn trong Docker image để runtime không phụ thuộc tải model. Seed tạo 21 vectors "
-        "khi VECTOR_SEARCH_ENABLED=true. health/rag xác nhận graph, retrieval mode, số chunks/vector "
-        "và provider LLM."
+        "Backend đã cài LangGraph thật, không chỉ mô tả trong tài liệu. Graph được compile một lần "
+        "và nhận session/settings qua runtime context riêng cho từng request. Intent router gọi Groq "
+        "với structured output để chọn đúng một trong sáu route; conditional edges kích hoạt Coffee "
+        "Retrieval, Traceability, Brew Knowledge hoặc Commerce Policy Tool. Khi router LLM không khả "
+        "dụng, deterministic router tiếp quản. Retrieval kết hợp BM25 với pgvector cosine và RRF; "
+        "FastEmbed model được preload trong image. Seed tạo 24 vectors khi VECTOR_SEARCH_ENABLED=true. "
+        "health/rag xác nhận graph, routing mode, retrieval mode, số chunks/vector và provider LLM."
     )
     writer.heading("4.3.4. Migration và seed", level=3)
     writer.paragraph(
@@ -714,8 +725,9 @@ def write_chapter_four(writer: Writer) -> None:
     writer.code(
         "cd /opt/dauvi.coffee\n"
         "docker pull pgvector/pgvector:0.8.6-pg17-bookworm\n"
-        "docker build --network=host --pull \\\n+  --build-arg EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 \\\n+  -f docker/backend.Dockerfile -t dau-vi-backend:latest .\n"
-        "docker compose --env-file docker/.env \\\n+  -f docker/compose.yml -f docker/compose.caddy.yml \\\n+  up -d --no-build database backend"
+        "docker build --network=host --pull \\\n  --build-arg EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 \\\n  -f docker/backend.Dockerfile -t dau-vi-backend:latest .\n"
+        "docker compose --env-file docker/.env \\\n  -f docker/compose.yml -f docker/compose.caddy.yml \\\n  up -d --no-build database\n"
+        "docker compose --env-file docker/.env \\\n  -f docker/compose.yml -f docker/compose.caddy.yml \\\n  up -d --no-build --force-recreate backend"
     )
     writer.paragraph(
         "Tùy chọn --network=host được dùng khi Docker daemon trên cloud gặp lỗi phân giải DNS "
@@ -747,7 +759,7 @@ def write_chapter_four(writer: Writer) -> None:
         "cd /opt/dauvi.coffee\n"
         "git pull --ff-only\n"
         "mkdir -p /opt/dauvi-backups\n"
-        "docker compose --env-file docker/.env -f docker/compose.yml exec -T database \\\n+  pg_dump -U dauvi -d dauvi -Fc \\\n+  > \"/opt/dauvi-backups/dauvi-pre-rag-$(date +%F-%H%M).dump\""
+        "docker compose --env-file docker/.env -f docker/compose.yml exec -T database \\\n  pg_dump -U dauvi -d dauvi -Fc \\\n  > \"/opt/dauvi-backups/dauvi-pre-rag-$(date +%F-%H%M).dump\""
     )
     writer.paragraph(
         "Sau đó thực hiện lệnh build ở Mục 4.5. Entrypoint tự migration/seed. Các biến bắt buộc "
@@ -762,7 +774,7 @@ def write_chapter_four(writer: Writer) -> None:
         "  reverse_proxy dauvi-api:8000\n"
         "}\n\n"
         "docker network inspect caddy >/dev/null 2>&1 || docker network create caddy\n"
-        "docker network inspect caddy --format '{{json .Containers}}' | grep -q 'minute_caddy' \\\n+  || docker network connect caddy minute_caddy\n"
+        "docker network inspect caddy --format '{{json .Containers}}' | grep -q 'minute_caddy' \\\n  || docker network connect caddy minute_caddy\n"
         "docker exec minute_caddy caddy validate --config /etc/caddy/Caddyfile\n"
         "docker exec minute_caddy caddy reload --config /etc/caddy/Caddyfile"
     )
@@ -777,15 +789,16 @@ def write_chapter_four(writer: Writer) -> None:
     writer.code(
         "curl --max-time 15 -fsS http://127.0.0.1:18081/health/ready; echo\n"
         "curl --max-time 15 -fsS https://dauvi-api.duckdns.org/health/rag; echo\n"
-        "docker compose --env-file docker/.env -f docker/compose.yml exec -T database \\\n+  psql -U dauvi -d dauvi -c \\\n+  'SELECT count(*) AS chunks, count(embedding) AS vectors FROM knowledge_chunks;'"
+        "docker compose --env-file docker/.env -f docker/compose.yml exec -T database \\\n  psql -U dauvi -d dauvi -c \\\n  'SELECT count(*) AS chunks, count(embedding) AS vectors FROM knowledge_chunks;'"
     )
     writer.paragraph(
         "Kết quả production mong đợi là status=ready, workflow=langgraph, "
-        "retrieval=bm25+pgvector và 21/21 chunks có embedding."
+        "routing=groq-semantic-router+deterministic-fallback, retrieval=bm25+pgvector và "
+        "24/24 chunks có embedding."
     )
     writer.heading("4.7.2. Kiểm thử chatbot", level=3)
     writer.code(
-        "curl --max-time 30 -fsS -X POST \\\n+  https://dauvi-api.duckdns.org/api/v1/assistant/messages \\\n+  -H 'Content-Type: application/json' \\\n+  -d '{\"message\":\"Tư vấn cà phê pha phin đậm dưới 120.000 đồng\"}'"
+        "curl --max-time 30 -fsS -X POST \\\n  https://dauvi-api.duckdns.org/api/v1/assistant/messages \\\n  -H 'Content-Type: application/json' \\\n  -d '{\"message\":\"Tư vấn cà phê pha phin đậm dưới 120.000 đồng\"}'"
     )
     writer.paragraph(
         "Ca kiểm tra phải chỉ gợi ý TRS1 hoặc TR4 và không đưa sản phẩm vượt ngân sách. Các ca "
@@ -798,7 +811,7 @@ def write_chapter_four(writer: Writer) -> None:
         ["Hạng mục", "Kết quả"],
         [
             ("Backend Ruff", "Đạt – không còn lỗi lint."),
-            ("Backend Pytest", "Đạt – 11 test, gồm health/rag, LangGraph, BM25/RRF, retrieval log và out-of-scope fallback."),
+            ("Backend Pytest", "Đạt – 20 test, gồm sáu route, tool-node selection, health/rag, BM25/RRF, retrieval log và fallback."),
             ("Docker Compose config", "Đạt – compose.yml + compose.caddy.yml hợp lệ với env mẫu."),
             ("Frontend ESLint/TypeScript", "Đạt – lint và typecheck không có lỗi."),
             ("Frontend Vitest", "Đạt – 24/24 unit test."),
@@ -813,8 +826,8 @@ def write_chapter_four(writer: Writer) -> None:
     writer.bullet("Quản trị: ", "chưa có Admin UI/API/RBAC; hiện mới có thiết kế mở rộng và phải triển khai trước khi vận hành thương mại.")
     writer.bullet("Đơn hàng: ", "là luồng COD demo, chưa tích hợp thanh toán, vận chuyển hoặc quản lý tồn kho theo số lượng.")
     writer.bullet("Dữ liệu truy xuất: ", "farm/cooperative/lot là Demo Data và luôn có disclosure; chưa kết nối nhà cung cấp xác minh thật.")
-    writer.bullet("RAG: ", "knowledge base hiện giới hạn 6 sản phẩm/21 chunks; chưa có CMS, lịch re-index nền hoặc đánh giá retrieval quy mô lớn.")
-    writer.bullet("Chatbot: ", "chưa streaming token và chưa lưu lịch sử hội thoại dài hạn; ưu tiên hiện tại là grounding và bảo vệ phạm vi.")
+    writer.bullet("RAG: ", "knowledge base hiện giới hạn 6 sản phẩm, chính sách, brew guide với 24 chunks; chưa có CMS, lịch re-index nền hoặc đánh giá retrieval quy mô lớn.")
+    writer.bullet("Chatbot: ", "semantic router và generate có thể tạo hai lượt gọi Groq cho câu hỏi cần tool; chưa streaming token và chưa lưu lịch sử hội thoại dài hạn.")
     writer.bullet("Vận hành: ", "cần bổ sung monitoring/alert, backup định kỳ, restore drill và secret manager khi chuyển khỏi quy mô đồ án.")
 
     writer.heading("4.9. Quy trình cập nhật và vận hành lại")
@@ -825,8 +838,8 @@ def write_chapter_four(writer: Writer) -> None:
     writer.code(
         "cd /opt/dauvi.coffee\n"
         "git pull --ff-only\n"
-        "docker build --network=host --pull \\\n+  --build-arg EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 \\\n+  -f docker/backend.Dockerfile -t dau-vi-backend:latest .\n"
-        "docker compose --env-file docker/.env \\\n+  -f docker/compose.yml -f docker/compose.caddy.yml \\\n+  up -d --no-build backend\n"
+        "docker build --network=host --pull \\\n  --build-arg EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 \\\n  -f docker/backend.Dockerfile -t dau-vi-backend:latest .\n"
+        "docker compose --env-file docker/.env \\\n  -f docker/compose.yml -f docker/compose.caddy.yml \\\n  up -d --no-build --force-recreate backend\n"
         "curl --max-time 15 -fsS https://dauvi-api.duckdns.org/health/rag; echo\n"
         "docker image prune -f"
     )

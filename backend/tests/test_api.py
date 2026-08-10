@@ -1,6 +1,14 @@
+import hashlib
+
 from sqlalchemy import func, select
 
 from app.models import KnowledgeChunk, Order, RetrievalLog
+from app.services.assistant import _normalize
+
+
+def _retrieval_log_for(db_session, message: str) -> RetrievalLog | None:
+    query_hash = hashlib.sha256(_normalize(message).encode("utf-8")).hexdigest()
+    return db_session.scalar(select(RetrievalLog).where(RetrievalLog.query_hash == query_hash))
 
 
 def test_health_and_catalog_contract(client):
@@ -9,7 +17,8 @@ def test_health_and_catalog_contract(client):
     rag_health = client.get("/health/rag").json()
     assert rag_health["status"] == "ready"
     assert rag_health["workflow"] == "langgraph"
-    assert rag_health["knowledgeChunks"] == 21
+    assert rag_health["routing"] == "groq-semantic-router+deterministic-fallback"
+    assert rag_health["knowledgeChunks"] == 24
 
     response = client.get("/api/v1/products")
     assert response.status_code == 200
@@ -91,8 +100,11 @@ def test_assistant_runs_grounded_langgraph_and_writes_retrieval_log(client, db_s
         "/shop/trs1-tay-nguyen-daily-phin",
         "/shop/tr4-dak-lak-traceable-robusta",
     }
-    assert db_session.scalar(select(func.count()).select_from(KnowledgeChunk)) == 21
+    assert db_session.scalar(select(func.count()).select_from(KnowledgeChunk)) == 24
     assert db_session.scalar(select(func.count()).select_from(RetrievalLog)) == 1
+    log = db_session.scalar(select(RetrievalLog))
+    assert log is not None
+    assert log.intent == "brewing"
 
 
 def test_assistant_refuses_out_of_scope_question_without_hallucinating(client):
@@ -105,6 +117,82 @@ def test_assistant_refuses_out_of_scope_question_without_hallucinating(client):
     payload = response.json()
     assert "chưa có dữ liệu" in payload["message"].lower()
     assert payload["actions"] == [{"label": "Mở Coffee Advisor", "href": "/advisor"}]
+
+
+def test_assistant_routes_commerce_to_policy_tool(client, db_session):
+    message = "Phí giao hàng và thanh toán COD thế nào?"
+    response = client.post(
+        "/api/v1/assistant/messages",
+        json={"message": message},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert "499.000" in payload["message"]
+    assert payload["actions"] == [
+        {"label": "Xem giỏ hàng", "href": "/cart"},
+        {"label": "Đi tới checkout", "href": "/checkout"},
+    ]
+    log = _retrieval_log_for(db_session, message)
+    assert log is not None
+    assert log.intent == "commerce"
+    assert log.result_product_ids == []
+    assert log.result_chunk_ids
+
+
+def test_assistant_routes_lot_code_to_traceability_tool(client, db_session):
+    message = "Cho tôi xem TR4-DLK-26-N02"
+    response = client.post(
+        "/api/v1/assistant/messages",
+        json={"message": message},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert "TR4-DLK-26-N02" in payload["message"]
+    assert payload["actions"][0] == {
+        "label": "Xem lô TR4-DLK-26-N02",
+        "href": "/traceability/TR4-DLK-26-N02",
+    }
+    log = _retrieval_log_for(db_session, message)
+    assert log is not None
+    assert log.intent == "traceability"
+
+
+def test_llm_router_decision_selects_exact_tool_node(client, db_session, monkeypatch):
+    from app.services import assistant_graph
+
+    async def fake_semantic_router(_message, _settings):
+        return "commerce"
+
+    retrieval_filters: list[list[str] | None] = []
+    real_hybrid_retrieve = assistant_graph.hybrid_retrieve
+
+    def recording_hybrid_retrieve(session, query, product_ids, settings):
+        retrieval_filters.append(product_ids)
+        return real_hybrid_retrieve(session, query, product_ids, settings)
+
+    monkeypatch.setattr(
+        "app.services.assistant_graph._route_with_ai",
+        fake_semantic_router,
+    )
+    monkeypatch.setattr(
+        "app.services.assistant_graph.hybrid_retrieve",
+        recording_hybrid_retrieve,
+    )
+    message = "Tôi muốn biết chính sách nhận hàng"
+    response = client.post(
+        "/api/v1/assistant/messages",
+        json={"message": message},
+    )
+
+    assert response.status_code == 200
+    assert response.json()["actions"][0] == {"label": "Xem giỏ hàng", "href": "/cart"}
+    log = _retrieval_log_for(db_session, message)
+    assert log is not None
+    assert log.intent == "commerce"
+    assert log.used_llm is True
+    assert retrieval_filters == [[]]
 
 
 def test_order_reprices_items_and_is_idempotent(client, db_session):

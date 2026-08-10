@@ -12,11 +12,11 @@ Hạ tầng hiện tại:
 
 ```bash
 cd /opt/dauvi.coffee
-cp -n docker/.env.example docker/.env
-chmod 600 docker/.env
-openssl rand -hex 24   # POSTGRES_PASSWORD
-openssl rand -hex 32   # SESSION_SECRET
-nano docker/.env
+  cp -n docker/.env.example docker/.env
+  chmod 600 docker/.env
+  openssl rand -hex 24   # POSTGRES_PASSWORD
+  openssl rand -hex 32   # SESSION_SECRET
+  nano docker/.env
 ```
 
 Các giá trị production quan trọng:
@@ -100,11 +100,15 @@ docker build --network=host --pull \
 
 docker compose --env-file docker/.env \
   -f docker/compose.yml -f docker/compose.caddy.yml \
-  up -d --no-build database backend
+  up -d --no-build database
+docker compose --env-file docker/.env \
+  -f docker/compose.yml -f docker/compose.caddy.yml \
+  up -d --no-build --force-recreate backend
 ```
 
-Backend tự chạy Alembic, bật extension `vector`, tạo HNSW index và seed 7 tài liệu/21
-knowledge chunks. Xem trạng thái:
+Backend tự chạy Alembic, bật extension `vector`, tạo HNSW index và seed 8 tài liệu/24
+knowledge chunks. Semantic router dùng Groq để chọn đúng một tool node; khi Groq lỗi,
+deterministic router tiếp quản. Xem trạng thái:
 
 ```bash
 docker compose --env-file docker/.env \
@@ -133,7 +137,8 @@ curl --max-time 30 -fsS -X POST \
   -d '{"message":"Tư vấn cà phê pha phin đậm dưới 120.000 đồng"}'; echo
 ```
 
-Kết quả đúng: health `ready`, 21 chunks/21 vectors và chatbot chỉ gợi ý sản phẩm có
+Kết quả đúng: health `ready`, routing=`groq-semantic-router+deterministic-fallback`,
+24 chunks/24 vectors và chatbot chỉ gợi ý sản phẩm có
 trong catalog. Nếu container cũ còn chạy, kiểm tra `docker ps --filter name=dauvi` và
 không dùng port `8000` trên host vì port đó đã thuộc service khác.
 
@@ -192,6 +197,7 @@ docker build --network=host --pull \
   -f docker/backend.Dockerfile -t dau-vi-backend:latest .
 docker compose --env-file docker/.env \
   -f docker/compose.yml -f docker/compose.caddy.yml \
-  up -d --no-build backend
+  up -d --no-build --force-recreate backend
+curl --max-time 15 -fsS http://127.0.0.1:18081/health/rag; echo
 docker image prune -f
 ```

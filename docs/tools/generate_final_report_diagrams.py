@@ -185,8 +185,8 @@ def architecture(output_dir: Path):
     )
     box(ax, 10.25, 5.75, 2.25, 1.35, "FastEmbed", "Multilingual MiniLM\nvector 384 chiều", fill="#EAF1F3", edge=BLUE)
     box(ax, 10.25, 2.35, 2.25, 1.55, "PostgreSQL 17", "Catalog · auth · orders\npgvector + HNSW", fill="#F1E8D8", edge=HONEY)
-    box(ax, 13.25, 4.25, 2.05, 1.55, "Groq API", "OpenAI-compatible\ngrounded response", fill="#F5EFE5", edge=CLAY)
-    box(ax, 13.25, 1.65, 2.05, 1.55, "Knowledge Base", "7 documents\n21 chunks", fill="#EDF3EF", edge=LEAF)
+    box(ax, 13.25, 4.25, 2.05, 1.55, "Groq API", "Semantic router\nGrounded response", fill="#F5EFE5", edge=CLAY)
+    box(ax, 13.25, 1.65, 2.05, 1.55, "Knowledge Base", "8 documents\n24 chunks", fill="#EDF3EF", edge=LEAF)
     arrow(ax, (2.7, 4.6), (3.45, 5.45), "HTTPS")
     arrow(ax, (2.7, 3.75), (3.45, 2.35), "same-origin")
     arrow(ax, (5.7, 5.45), (6.7, 4.85), "REST")
@@ -209,7 +209,7 @@ def sequence_diagram(output_dir: Path, name: str, title: str, actors: list[str],
         box(ax, x - 0.8, 6.55, 1.6, 0.62, actor, fill=FOREST, edge=FOREST, title_color=WHITE, fontsize=8.5)
         ax.plot([x, x], [1.25, 6.55], color=SAND, linewidth=1.1, linestyle=(0, (4, 4)))
     start_y = 5.95
-    gap = 0.68 if len(steps) <= 7 else 0.56
+    gap = 0.68 if len(steps) <= 7 else (0.48 if len(steps) > 9 else 0.56)
     for index, (source, target, label) in enumerate(steps, 1):
         y = start_y - (index - 1) * gap
         color = LEAF if target >= source else HONEY
@@ -264,15 +264,17 @@ def sequences(output_dir: Path):
             (0, 1, "Nhập câu hỏi"),
             (1, 2, "POST /assistant/messages"),
             (2, 3, "Khởi chạy graph"),
-            (3, 4, "Structured + BM25 + vector"),
-            (4, 3, "RRF chunks + product IDs"),
-            (3, 4, "Grounding theo catalog published"),
-            (3, 5, "Prompt + bounded context"),
-            (5, 3, "Grounded answer / lỗi"),
-            (3, 4, "Ghi retrieval log đã băm query"),
+            (3, 5, "Route-only request có schema enum"),
+            (5, 3, "Một route hoặc router fallback"),
+            (3, 4, "Chỉ gọi tool node đã chọn"),
+            (4, 3, "Structured/BM25/vector + RRF"),
+            (3, 5, "Bounded context sau grounding"),
+            (5, 3, "Grounded answer hoặc fallback"),
+            (3, 4, "Ghi route/chunk/product audit"),
+            (3, 2, "AssistantResponse"),
             (2, 1, "Message + action route thật"),
         ],
-        "Ngoài phạm vi hoặc thiếu dữ liệu: từ chối có kiểm soát. Groq lỗi: deterministic fallback.",
+        "Greeting/out-of-scope không retrieve. Groq router lỗi: deterministic router tiếp quản.",
     )
     sequence_diagram(
         output_dir,
@@ -293,30 +295,34 @@ def sequences(output_dir: Path):
 
 
 def langgraph_workflow(output_dir: Path):
-    fig, ax = canvas("Workflow LangGraph và cơ chế grounding", "DẤU VỊ · AI workflow")
-    stages = [
-        (0.65, 5.4, "1 · Understand", "Chuẩn hóa tiếng Việt\nIntent classification", FOREST),
-        (3.35, 5.4, "2 · Structured", "Budget · product hints\nCatalog candidates", LEAF),
-        (6.05, 5.4, "3 · Hybrid retrieval", "BM25 + pgvector\nCosine + RRF", BLUE),
-        (8.75, 5.4, "4 · Grounding", "Published product IDs\nTop 3 bounded context", HONEY),
-        (11.45, 5.4, "5 · Generate", "Groq response\nhoặc fallback", CLAY),
+    fig, ax = canvas("Semantic router và các tool node LangGraph", "DẤU VỊ · Agentic RAG workflow")
+    box(ax, 6.35, 6.05, 3.3, 1.15, "Groq Semantic Intent Router", "Structured enum · đúng một route\nDeterministic fallback khi lỗi", fill=FOREST, edge=FOREST, title_color=WHITE, fontsize=10)
+    alternatives = [
+        (0.35, "Greeting", "Direct response\nKhông retrieval", CLAY),
+        (2.95, "Coffee / Product", "Coffee Retrieval Tool", LEAF),
+        (5.55, "Lot code", "Traceability Tool", BLUE),
+        (8.15, "Brewing", "Brew Knowledge Tool", HONEY),
+        (10.75, "Commerce", "Commerce Policy Tool", CLAY),
+        (13.35, "Out of scope", "Controlled refusal\nKhông retrieval", FOREST),
     ]
-    for i, (x, y, title, body, color) in enumerate(stages):
-        box(ax, x, y, 2.25, 1.45, title, body, fill=WHITE, edge=color, fontsize=9.2)
-        if i < len(stages) - 1:
-            arrow(ax, (x + 2.25, y + 0.72), (stages[i + 1][0], y + 0.72), color=color)
-    box(ax, 3.0, 2.55, 3.0, 1.55, "Scope fallback", "Greeting: hướng dẫn phạm vi\nNgoài phạm vi: từ chối\nKhông gọi LLM không cần thiết", fill="#F4EEE4", edge=CLAY)
-    box(ax, 7.0, 2.55, 3.0, 1.55, "Audit node", "query_hash · intent\nchunk IDs · product IDs\nlatency · vector/LLM flags", fill="#EDF3EF", edge=LEAF)
-    box(ax, 11.0, 2.55, 3.0, 1.55, "Output contract", "message\nactions[href] từ route thật\nkhông lộ retrieval internals", fill=FOREST, edge=FOREST, title_color=WHITE)
-    arrow(ax, (1.75, 5.4), (4.5, 4.1), "greeting / out-of-scope", color=CLAY)
-    arrow(ax, (6.0, 3.3), (7.0, 3.3), "audit", color=LEAF)
-    arrow(ax, (12.55, 5.4), (8.5, 4.1), "sinh / fallback", color=LEAF)
-    arrow(ax, (10.0, 3.3), (11.0, 3.3), "AssistantResponse", color=FOREST)
-    ax.text(0.8, 0.72, "Điều kiện bất biến", color=CLAY, fontsize=9, weight="bold")
+    for x, title, body, color in alternatives:
+        box(ax, x, 4.15, 2.25, 1.15, title, body, fill=WHITE, edge=color, fontsize=8.6)
+        arrow(ax, (8.0, 6.05), (x + 1.12, 5.3), color=color)
+
+    box(ax, 4.0, 1.85, 2.35, 1.2, "Grounding", "Published IDs\nTop 6 chunks / 3 products", fill="#F1E8D8", edge=HONEY, fontsize=9)
+    box(ax, 7.0, 1.85, 2.35, 1.2, "Generate", "Groq + bounded context\nhoặc deterministic fallback", fill="#F5EFE5", edge=CLAY, fontsize=9)
+    box(ax, 10.0, 1.85, 2.35, 1.2, "Audit + Output", "query hash · route · IDs\nmessage + action route thật", fill="#EDF3EF", edge=LEAF, fontsize=9)
+    for x in (2.95, 5.55, 8.15, 10.75):
+        arrow(ax, (x + 1.12, 4.15), (5.18, 3.05), color=LEAF)
+    arrow(ax, (6.35, 2.45), (7.0, 2.45), "bounded", color=HONEY)
+    arrow(ax, (9.35, 2.45), (10.0, 2.45), "audit", color=LEAF)
+    arrow(ax, (1.47, 4.15), (10.5, 3.05), "direct", color=CLAY)
+    arrow(ax, (14.47, 4.15), (11.8, 3.05), "refuse", color=FOREST)
+    ax.text(0.8, 0.65, "Điều kiện bất biến", color=CLAY, fontsize=9, weight="bold")
     ax.text(
         2.55,
-        0.72,
-        "AI chỉ được mô tả sản phẩm, giá, lô và chính sách xuất hiện trong catalog/knowledge chunks đã retrieval.",
+        0.65,
+        "Chỉ tool node được router chọn mới chạy; câu trả lời chỉ dùng catalog và chunks đã grounding.",
         color=INK,
         fontsize=9,
     )

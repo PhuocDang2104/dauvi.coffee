@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 import time
 import uuid
 from dataclasses import dataclass
@@ -13,33 +14,35 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.config import Settings
 from app.models import Product, RetrievalLog
-from app.schemas import AssistantResponse
+from app.schemas import AssistantActionOut, AssistantResponse
 from app.services.assistant import (
+    AssistantRoute,
     _actions,
-    _budget_max,
     _fallback_message,
     _generate_ai_message,
     _load_catalog,
     _normalize,
     _retrieve_products,
+    _route_with_ai,
 )
-from app.services.retrieval import hybrid_retrieve
+from app.services.retrieval import HybridRetrievalResult, hybrid_retrieve
 
-AssistantIntent = Literal[
-    "greeting",
-    "product-advice",
-    "product-fact",
-    "traceability",
-    "brew-guide",
-    "commerce",
-    "out-of-scope",
+ToolNodeName = Literal[
+    "direct_response",
+    "coffee_retrieval_tool",
+    "traceability_tool",
+    "brew_knowledge_tool",
+    "commerce_policy_tool",
+    "scope_fallback",
 ]
 
 
 class AssistantGraphState(TypedDict, total=False):
     raw_message: str
     normalized_query: str
-    intent: AssistantIntent
+    route: AssistantRoute
+    route_source: Literal["llm", "deterministic-fallback"]
+    selected_tool: ToolNodeName
     structured_product_ids: list[str]
     bm25_chunk_ids: list[str]
     vector_chunk_ids: list[str]
@@ -49,6 +52,8 @@ class AssistantGraphState(TypedDict, total=False):
     knowledge_context: str
     message: str
     used_vector: bool
+    router_used_llm: bool
+    generator_used_llm: bool
     used_llm: bool
 
 
@@ -79,21 +84,42 @@ PRODUCT_KEYWORDS = {
     "trs1",
     "xanh lun",
 }
+LOT_CODE_PATTERN = re.compile(r"\b[A-Z0-9]{2,8}-[A-Z]{2,4}-\d{2}-[A-Z]\d{2}\b")
+
+ROUTE_TO_TOOL: dict[AssistantRoute, ToolNodeName] = {
+    "greeting": "direct_response",
+    "coffee-product": "coffee_retrieval_tool",
+    "traceability": "traceability_tool",
+    "brewing": "brew_knowledge_tool",
+    "commerce": "commerce_policy_tool",
+    "out-of-scope": "scope_fallback",
+}
 
 
-def _classify_intent(query: str) -> AssistantIntent:
-    if query in {"chao", "chao ban", "hello", "hi", "xin chao"}:
+def _fallback_route(raw_message: str) -> AssistantRoute:
+    query = _normalize(raw_message)
+    if query in {"chao", "chao ban", "hello", "hi", "xin chao"} or any(
+        value in query for value in ("ban lam duoc gi", "co the giup gi")
+    ):
         return "greeting"
-    if any(value in query for value in ("ma lo", "lo ", "truy xuat", "passport", "nguon goc")):
+    if LOT_CODE_PATTERN.search(raw_message.upper()) or any(
+        value in query for value in ("ma lo", "lo ", "truy xuat", "passport", "nguon goc")
+    ):
         return "traceability"
-    if any(value in query for value in ("cach pha", "pha phin", "pour over", "aeropress", "drip")):
-        return "brew-guide"
-    if any(value in query for value in ("giao hang", "checkout", "cod", "dat hang", "phi ship")):
+    if any(
+        value in query
+        for value in ("cach pha", "pha phin", "pour over", "aeropress", "drip bag", "do xay")
+    ):
+        return "brewing"
+    if any(
+        value in query
+        for value in ("giao hang", "checkout", "cod", "dat hang", "phi ship", "van chuyen")
+    ):
         return "commerce"
-    if any(value in query for value in ("tu van", "chon giup", "phu hop", "nen mua")):
-        return "product-advice"
-    if any(value in query for value in PRODUCT_KEYWORDS):
-        return "product-fact"
+    if any(value in query for value in ("tu van", "chon giup", "phu hop", "nen mua")) or any(
+        value in query for value in PRODUCT_KEYWORDS
+    ):
+        return "coffee-product"
     return "out-of-scope"
 
 
@@ -111,42 +137,32 @@ def _load_grounded_products(session: Session, product_ids: list[str]) -> list[Pr
     return [by_id[product_id] for product_id in product_ids if product_id in by_id]
 
 
-def _understand(state: AssistantGraphState) -> AssistantGraphState:
+async def _intent_router(
+    state: AssistantGraphState,
+    runtime: Runtime[AssistantGraphContext],
+) -> AssistantGraphState:
     normalized = _normalize(state["raw_message"])
-    return {"normalized_query": normalized, "intent": _classify_intent(normalized)}
-
-
-def _route_after_understand(
-    state: AssistantGraphState,
-) -> Literal["structured_retrieval", "scope_fallback"]:
-    return (
-        "scope_fallback"
-        if state["intent"] in {"greeting", "out-of-scope"}
-        else "structured_retrieval"
-    )
-
-
-def _structured_retrieval(
-    state: AssistantGraphState,
-    runtime: Runtime[AssistantGraphContext],
-) -> AssistantGraphState:
-    products = _retrieve_products(runtime.context.catalog, state["raw_message"])
-    return {"structured_product_ids": [product.id for product in products]}
-
-
-def _hybrid_retrieval(
-    state: AssistantGraphState,
-    runtime: Runtime[AssistantGraphContext],
-) -> AssistantGraphState:
-    budget = _budget_max(state["raw_message"])
-    product_filter = state.get("structured_product_ids") if budget is not None else None
-    result = hybrid_retrieve(
-        runtime.context.session,
-        state["raw_message"],
-        product_filter,
-        runtime.context.settings,
-    )
+    ai_route = await _route_with_ai(state["raw_message"], runtime.context.settings)
+    route = ai_route or _fallback_route(state["raw_message"])
     return {
+        "normalized_query": normalized,
+        "route": route,
+        "route_source": "llm" if ai_route else "deterministic-fallback",
+        "selected_tool": ROUTE_TO_TOOL[route],
+        "router_used_llm": ai_route is not None,
+    }
+
+
+def _route_to_tool(state: AssistantGraphState) -> ToolNodeName:
+    return state["selected_tool"]
+
+
+def _retrieval_state(
+    result: HybridRetrievalResult,
+    structured_product_ids: list[str],
+) -> AssistantGraphState:
+    return {
+        "structured_product_ids": structured_product_ids,
         "bm25_chunk_ids": result.bm25_chunk_ids,
         "vector_chunk_ids": result.vector_chunk_ids,
         "grounded_chunk_ids": [chunk.id for chunk in result.chunks],
@@ -158,6 +174,63 @@ def _hybrid_retrieval(
             chunk.product_id for chunk in result.chunks if chunk.product_id is not None
         ],
     }
+
+
+def _coffee_retrieval_tool(
+    state: AssistantGraphState,
+    runtime: Runtime[AssistantGraphContext],
+) -> AssistantGraphState:
+    products = _retrieve_products(runtime.context.catalog, state["raw_message"])
+    product_ids = [product.id for product in products]
+    result = hybrid_retrieve(
+        runtime.context.session,
+        state["raw_message"],
+        product_ids,
+        runtime.context.settings,
+    )
+    return _retrieval_state(result, product_ids)
+
+
+def _traceability_tool(
+    state: AssistantGraphState,
+    runtime: Runtime[AssistantGraphContext],
+) -> AssistantGraphState:
+    products = _retrieve_products(runtime.context.catalog, state["raw_message"])
+    result = hybrid_retrieve(
+        runtime.context.session,
+        state["raw_message"],
+        None,
+        runtime.context.settings,
+    )
+    return _retrieval_state(result, [product.id for product in products])
+
+
+def _brew_knowledge_tool(
+    state: AssistantGraphState,
+    runtime: Runtime[AssistantGraphContext],
+) -> AssistantGraphState:
+    products = _retrieve_products(runtime.context.catalog, state["raw_message"])
+    product_ids = [product.id for product in products]
+    result = hybrid_retrieve(
+        runtime.context.session,
+        state["raw_message"],
+        product_ids,
+        runtime.context.settings,
+    )
+    return _retrieval_state(result, product_ids)
+
+
+def _commerce_policy_tool(
+    state: AssistantGraphState,
+    runtime: Runtime[AssistantGraphContext],
+) -> AssistantGraphState:
+    result = hybrid_retrieve(
+        runtime.context.session,
+        state["raw_message"],
+        [],
+        runtime.context.settings,
+    )
+    return _retrieval_state(result, [])
 
 
 def _grounding(
@@ -178,6 +251,41 @@ def _grounding(
     }
 
 
+def _tool_fallback_message(state: AssistantGraphState) -> str:
+    route = state["route"]
+    products = state.get("grounded_products", [])
+    query = state["normalized_query"]
+    if route == "commerce":
+        return (
+            "Checkout hiện là luồng trình diễn và chỉ hỗ trợ COD. "
+            "Đơn từ 499.000 ₫ được miễn phí giao hàng; đơn thấp hơn có phí 30.000 ₫. "
+            "Chưa có giao dịch hoặc đơn vận chuyển thật."
+        )
+    if route == "brewing":
+        if "phin" in query:
+            return (
+                "Với phin, dùng 20 g cà phê xay vừa–mịn và 80–100 ml nước; "
+                "thời gian pha tham khảo 4–6 phút. TRS1 và TR4 là hai lựa chọn đậm, hợp phin."
+            )
+        if any(value in query for value in ("pour over", "aeropress")):
+            return (
+                "Với pour-over hoặc AeroPress, bắt đầu với 15–17 g cà phê, "
+                "220–240 ml nước và thời gian khoảng 2–3 phút. Catimor và Bourbon "
+                "phù hợp khi ưu tiên tách thanh, giàu hương."
+            )
+        if "drip bag" in query or "drip" in query:
+            return (
+                "Drip bag Catimor dùng gói 12 g với 180–200 ml nước, thời gian 2–3 phút. "
+                "Đây là quy cách pha nhanh có sẵn trong catalog hiện tại."
+            )
+        return (
+            "Mình đã tìm thấy hướng dẫn pha trong dữ liệu DẤU VỊ. "
+            "Bạn hãy cho biết đang dùng phin, pour-over, AeroPress hay drip bag "
+            "để nhận tỷ lệ cụ thể."
+        )
+    return _fallback_message(products, state["raw_message"])
+
+
 async def _generate(
     state: AssistantGraphState,
     runtime: Runtime[AssistantGraphContext],
@@ -189,25 +297,35 @@ async def _generate(
         runtime.context.settings,
         knowledge_context=state.get("knowledge_context", ""),
     )
+    generator_used_llm = generated is not None
     return {
-        "message": generated or _fallback_message(grounded_products, state["raw_message"]),
-        "used_llm": generated is not None,
+        "message": generated or _tool_fallback_message(state),
+        "generator_used_llm": generator_used_llm,
+        "used_llm": state.get("router_used_llm", False) or generator_used_llm,
+    }
+
+
+def _direct_response(state: AssistantGraphState) -> AssistantGraphState:
+    return {
+        "message": (
+            "Chào bạn, mình là Coffee Assistant của DẤU VỊ. Bạn có thể hỏi về sản phẩm, "
+            "mã lô, cách pha, giao hàng hoặc nhờ mình chọn cà phê theo gu và ngân sách."
+        ),
+        "used_vector": False,
+        "used_llm": state.get("router_used_llm", False),
     }
 
 
 def _scope_fallback(state: AssistantGraphState) -> AssistantGraphState:
-    if state["intent"] == "greeting":
-        message = (
-            "Chào bạn, mình là Coffee Assistant của DẤU VỊ. "
-            "Bạn có thể hỏi về gu vị, cách pha, ngân sách hoặc mã lô của sáu sản phẩm."
-        )
-    else:
-        message = (
-            "Mình chưa có dữ liệu cho chủ đề này. Mình chỉ tư vấn sản phẩm DẤU VỊ, "
-            "cách pha, mức giá và hồ sơ truy xuất demo; mình sẽ không tự tạo "
+    return {
+        "message": (
+            "Mình chưa có dữ liệu cho chủ đề này. Mình chỉ hỗ trợ sản phẩm DẤU VỊ, "
+            "cách pha, chính sách mua hàng và hồ sơ truy xuất demo; mình sẽ không tự tạo "
             "thông tin ngoài hệ thống."
-        )
-    return {"message": message, "used_llm": False, "used_vector": False}
+        ),
+        "used_vector": False,
+        "used_llm": state.get("router_used_llm", False),
+    }
 
 
 def _audit(
@@ -219,7 +337,7 @@ def _audit(
         RetrievalLog(
             id=str(uuid.uuid4()),
             query_hash=hashlib.sha256(state["normalized_query"].encode("utf-8")).hexdigest(),
-            intent=state["intent"],
+            intent=state["route"],
             result_chunk_ids=state.get("grounded_chunk_ids", []),
             result_product_ids=state.get("grounded_product_ids", []),
             used_vector=state.get("used_vector", False),
@@ -231,21 +349,46 @@ def _audit(
     return {}
 
 
+def _route_actions(
+    route: AssistantRoute,
+    products: list[Product],
+    raw_message: str,
+) -> list[AssistantActionOut]:
+    if route == "commerce":
+        return [
+            AssistantActionOut(label="Xem giỏ hàng", href="/cart"),
+            AssistantActionOut(label="Đi tới checkout", href="/checkout"),
+        ]
+    if route == "brewing":
+        actions = [AssistantActionOut(label="Mở hướng dẫn pha", href="/brew-guide")]
+        return [*actions, *_actions(products, raw_message)][:3]
+    return _actions(products, raw_message)
+
+
 def _build_graph():
     builder = StateGraph(AssistantGraphState, context_schema=AssistantGraphContext)
-    builder.add_node("understand", _understand)
-    builder.add_node("structured_retrieval", _structured_retrieval)
-    builder.add_node("hybrid_retrieval", _hybrid_retrieval)
+    builder.add_node("intent_router", _intent_router)
+    builder.add_node("direct_response", _direct_response)
+    builder.add_node("coffee_retrieval_tool", _coffee_retrieval_tool)
+    builder.add_node("traceability_tool", _traceability_tool)
+    builder.add_node("brew_knowledge_tool", _brew_knowledge_tool)
+    builder.add_node("commerce_policy_tool", _commerce_policy_tool)
     builder.add_node("grounding", _grounding)
     builder.add_node("generate", _generate)
     builder.add_node("scope_fallback", _scope_fallback)
     builder.add_node("audit", _audit)
-    builder.add_edge(START, "understand")
-    builder.add_conditional_edges("understand", _route_after_understand)
-    builder.add_edge("structured_retrieval", "hybrid_retrieval")
-    builder.add_edge("hybrid_retrieval", "grounding")
+    builder.add_edge(START, "intent_router")
+    builder.add_conditional_edges("intent_router", _route_to_tool)
+    for tool_node in (
+        "coffee_retrieval_tool",
+        "traceability_tool",
+        "brew_knowledge_tool",
+        "commerce_policy_tool",
+    ):
+        builder.add_edge(tool_node, "grounding")
     builder.add_edge("grounding", "generate")
     builder.add_edge("generate", "audit")
+    builder.add_edge("direct_response", "audit")
     builder.add_edge("scope_fallback", "audit")
     builder.add_edge("audit", END)
     return builder.compile()
@@ -272,5 +415,5 @@ async def run_assistant_graph(
     grounded_products = final_state.get("grounded_products", [])
     return AssistantResponse(
         message=final_state["message"],
-        actions=_actions(grounded_products, raw_message),
+        actions=_route_actions(final_state["route"], grounded_products, raw_message),
     )

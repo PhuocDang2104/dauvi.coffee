@@ -262,11 +262,17 @@ same-origin rewrite `/backend-api`; CORS vẫn giữ danh sách origin chính x�
 
 ## Coffee Assistant
 
-Backend chạy workflow LangGraph: phân loại ý định, structured product retrieval,
-BM25, pgvector cosine search, Reciprocal Rank Fusion, grounding theo ID thật và sinh
-câu trả lời bằng Groq. Knowledge base hiện có 7 tài liệu/21 chunks từ sáu sản phẩm,
-sáu lô demo và chính sách minh bạch. Frontend dùng fallback local khi API chưa bật;
-khi `NEXT_PUBLIC_ENABLE_CHATBOT_API=true`, widget gọi:
+Backend chạy workflow LangGraph với Groq semantic router. Router trả structured enum
+và chỉ chọn đúng một nhánh: `coffee-product`, `traceability`, `brewing`, `commerce`,
+`greeting` hoặc `out-of-scope`. Bốn nhánh nghiệp vụ lần lượt gọi Coffee Retrieval Tool,
+Traceability Tool, Brew Knowledge Tool hoặc Commerce Policy Tool; greeting và ngoài
+phạm vi không chạy retrieval. Khi Groq router lỗi/tắt, deterministic router tiếp quản.
+
+Các tool dùng structured retrieval, BM25, pgvector cosine search và Reciprocal Rank
+Fusion theo phạm vi của tool, sau đó grounding theo ID thật và mới gọi Groq để sinh
+câu trả lời. Knowledge base hiện có 8 tài liệu/24 chunks từ sáu sản phẩm, sáu lô demo,
+chính sách minh bạch/thương mại và hướng dẫn pha. Frontend dùng fallback local khi API
+chưa bật; khi `NEXT_PUBLIC_ENABLE_CHATBOT_API=true`, widget gọi:
 
 ```http
 POST /assistant/messages
@@ -296,5 +302,5 @@ GET /health/rag
 ```
 
 `/health/ready` chỉ trả `200` khi PostgreSQL và vector index bắt buộc đã sẵn sàng.
-`/health/rag` công bố workflow, retrieval mode, số chunks/vector, embedding model và
-nhà cung cấp LLM để kiểm tra sau deploy mà không làm lộ secret.
+`/health/rag` công bố workflow, routing mode, retrieval mode, số chunks/vector,
+embedding model và nhà cung cấp LLM để kiểm tra sau deploy mà không làm lộ secret.

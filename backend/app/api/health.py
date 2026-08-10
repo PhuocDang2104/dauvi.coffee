@@ -72,6 +72,7 @@ def rag_readiness(
     return {
         "status": "ready" if ready else "degraded",
         "workflow": "langgraph" if settings.rag_enabled else "legacy",
+        "routing": "groq-semantic-router+deterministic-fallback",
         "retrieval": "bm25+pgvector" if settings.vector_search_enabled else "bm25",
         "knowledgeChunks": total_chunks,
         "embeddedChunks": embedded_chunks,
