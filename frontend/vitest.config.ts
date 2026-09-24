@@ -6,6 +6,7 @@ export default defineConfig({
     alias: { "@": path.resolve(__dirname, "./src") },
   },
   test: {
+    maxWorkers: 2,
     environment: "jsdom",
     globals: true,
     setupFiles: ["./vitest.setup.ts"],

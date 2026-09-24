@@ -59,9 +59,11 @@ const FILTER_GROUPS: FilterGroup[] = [
     key: "roast",
     label: "Mức rang",
     options: [
+      { value: "light", label: "Light" },
       { value: "light-medium", label: "Light–medium" },
       { value: "medium", label: "Medium" },
       { value: "medium-dark", label: "Medium–dark" },
+      { value: "dark", label: "Dark" },
     ],
   },
   {
@@ -129,8 +131,8 @@ function FiltersContent({
   return (
     <div>
       <div className="flex items-center justify-between gap-3 border-b border-basalt-900/10 pb-5">
-        <p className="font-display text-2xl font-semibold">Lọc bộ sưu tập</p>
-        <button type="button" className="min-h-11 text-sm font-bold text-forest-800 underline underline-offset-4" onClick={onClear}>
+        <p className="font-display text-xl font-semibold">Bộ lọc</p>
+        <button type="button" className="min-h-11 shrink-0 text-xs font-bold text-forest-800 underline underline-offset-4" onClick={onClear}>
           Xóa tất cả
         </button>
       </div>
@@ -217,6 +219,12 @@ export function ShopCatalog({ products }: { products: Product[] }) {
 
   return (
     <div>
+      <nav aria-label="Chọn nhanh cách pha" className="mb-7 flex flex-wrap items-center gap-2 border-b border-basalt-900/10 pb-6">
+        <span className="mr-3 text-sm font-bold text-ink-700">Bạn pha bằng gì?</span>
+        {[{ label: "Phin", key: "brew", value: "phin" }, { label: "Pour-over", key: "brew", value: "pour-over" }, { label: "Espresso", key: "brew", value: "espresso" }, { label: "Drip bag", key: "format", value: "drip-bag" }].map((preset) => (
+          <button key={preset.value} type="button" aria-pressed={selected[preset.key as FilterKey].includes(preset.value)} onClick={() => toggleFilter(preset.key as FilterKey, preset.value)} className="min-h-11 rounded-full border border-forest-950/20 px-4 text-sm font-semibold transition hover:bg-paper-100 aria-pressed:bg-forest-950 aria-pressed:text-white">{preset.label}</button>
+        ))}
+      </nav>
       <form
         className="relative mb-8 max-w-2xl"
         role="search"
@@ -275,9 +283,9 @@ export function ShopCatalog({ products }: { products: Product[] }) {
         </select>
       </div>
 
-      <div className="grid gap-10 lg:grid-cols-[17.5rem_minmax(0,1fr)]">
+      <div className="grid gap-8 lg:grid-cols-[14rem_minmax(0,1fr)]">
         <aside className="hidden lg:block" aria-label="Bộ lọc sản phẩm">
-          <div className="sticky top-32 rounded-[1.35rem] border border-basalt-900/10 bg-white/60 p-5">
+          <div className="max-h-[calc(100dvh-9rem)] overflow-y-auto overscroll-contain border-r border-basalt-900/10 pr-5 lg:sticky lg:top-32">
             <FiltersContent selected={selected} onToggle={toggleFilter} onClear={clearFilters} />
           </div>
         </aside>
@@ -314,7 +322,7 @@ export function ShopCatalog({ products }: { products: Product[] }) {
           )}
 
           {results.length > 0 ? (
-            <ProductCardGrid products={results} />
+            <ProductCardGrid products={results} compact />
           ) : (
             <div className="topo-surface rounded-[1.5rem] border border-basalt-900/10 bg-paper-100 p-8 text-center md:p-14">
               <p className="eyebrow">0 kết quả</p>

@@ -8,7 +8,7 @@ test("homepage dùng banner, bốn card và flavor map tương tác", async ({ p
   await expect(page.getByText("05 vùng trồng")).toHaveCount(0);
   await expect(page.getByText("06 hồ sơ lô demo")).toHaveCount(0);
 
-  for (const title of ["Chọn theo gu", "Coffee Advisor", "Vùng trồng", "Best sellers"]) {
+  for (const title of ["Chọn theo gu", "Coffee Advisor", "Vùng trồng", "Gợi ý từ DẤU VỊ"]) {
     await expect(page.getByRole("heading", { name: title, exact: true })).toBeVisible();
   }
 

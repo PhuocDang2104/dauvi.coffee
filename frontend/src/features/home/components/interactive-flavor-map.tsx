@@ -83,7 +83,7 @@ const FLAVOR_REGIONS: FlavorRegion[] = [
 
 const MAP_VALUES = [
   { icon: Leaf, label: "Nguồn gốc", value: "Rõ ràng" },
-  { icon: Mountain, label: "Độ cao", value: "Lý tưởng" },
+  { icon: Mountain, label: "Độ cao", value: "Đa dạng" },
   { icon: Coffee, label: "Hương vị", value: "Đa dạng" },
 ];
 
@@ -135,12 +135,12 @@ export function InteractiveFlavorMap() {
                   <Image src={activeRegion.image} alt="" fill sizes="72px" className="object-contain mix-blend-multiply" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-[0.6rem] font-extrabold uppercase tracking-[0.16em] text-honey-500">{activeRegion.species} · {activeRegion.altitude}</p>
+                  <p className="text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-ink-950">{activeRegion.species} · {activeRegion.altitude}</p>
                   <h3 className="mt-1 font-display text-xl font-semibold sm:text-2xl">{activeRegion.name}</h3>
-                  <p className="mt-1 line-clamp-2 text-[0.68rem] leading-5 text-sand-200 sm:text-xs">{activeRegion.description}</p>
+                  <p className="mt-1 line-clamp-2 text-xs font-medium leading-5 text-ink-950">{activeRegion.description}</p>
                 </div>
               </div>
-              <Link href={activeRegion.href} className="mt-2 inline-flex min-h-9 items-center gap-2 text-[0.68rem] font-bold text-white underline decoration-honey-500/45 underline-offset-4">
+              <Link href={activeRegion.href} className="mt-2 inline-flex min-h-11 items-center gap-2 text-xs font-bold text-ink-950 underline decoration-ink-950/45 underline-offset-4">
                 {activeRegion.product} <ArrowUpRight aria-hidden="true" size={14} />
               </Link>
             </article>
@@ -151,21 +151,16 @@ export function InteractiveFlavorMap() {
           <p className="eyebrow !text-honey-500">Vietnam Flavor Map</p>
           <div className="mt-4 h-px w-12 bg-honey-500" aria-hidden="true" />
           <h2 className="mt-6 max-w-[32rem] font-display text-[clamp(2.65rem,4.4vw,4rem)] font-medium leading-[1.02] tracking-[-.04em] text-paper-100 text-balance">Một bản đồ, nhiều sắc thái cà phê</h2>
-          <p className="mt-5 max-w-[32rem] text-sm leading-6 text-sand-200/80">
+          <p className="mt-5 max-w-[32rem] text-sm leading-7 text-sand-200">
             Mỗi vùng đất, một độ cao, một khí hậu và một câu chuyện hương vị. Từ Robusta đậm sâu đến Arabica thanh sáng, từng điểm trên bản đồ mở ra một cách thưởng thức riêng. Chạm để khám phá vùng trồng, độ cao và dòng cà phê tiêu biểu.
           </p>
 
-          <article key={`visual-${activeRegion.id}`} className="map-visual-in relative mt-7 aspect-[16/8.7] w-full max-w-[32rem] overflow-hidden rounded-[1.5rem] border border-honey-500/20 bg-paper-100 shadow-[0_26px_68px_rgba(0,0,0,.22)]">
+          <article key={`visual-${activeRegion.id}`} className="map-visual-in relative mt-7 aspect-[16/8.7] w-full max-w-[32rem] overflow-hidden rounded-xl border border-honey-500/20 bg-paper-100">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_45%,rgba(199,150,72,.22),transparent_36%),linear-gradient(110deg,#f3eee4_0%,#eee4d4_100%)]" aria-hidden="true" />
-            <Image
-              src={activeRegion.image}
-              alt={activeRegion.imageAlt}
-              fill
-              sizes="(max-width: 1023px) 90vw, 46vw"
-              className="object-contain object-[78%_center] mix-blend-multiply"
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-paper-100 via-paper-100/65 to-transparent" aria-hidden="true" />
-            <div className="absolute inset-y-0 left-0 flex w-[48%] flex-col justify-center p-5 sm:p-7">
+            <div className="absolute inset-y-0 right-0 w-[58%]">
+              <Image src={activeRegion.image} alt={activeRegion.imageAlt} fill sizes="(max-width: 1023px) 50vw, 300px" className="object-contain mix-blend-multiply" />
+            </div>
+            <div className="absolute inset-y-0 left-0 flex w-[45%] flex-col justify-center p-4 sm:p-6">
               <p className="text-[0.58rem] font-extrabold uppercase tracking-[0.15em] text-clay-500">{activeRegion.species} · {activeRegion.altitude}</p>
               <h3 className="mt-2 font-display text-3xl font-semibold text-forest-950 sm:text-4xl">{activeRegion.name}</h3>
               <p className="mt-2 text-xs font-bold leading-5 text-ink-700">{activeRegion.product}</p>

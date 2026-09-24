@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ShoppingBag, UserRound } from "lucide-react";
 import type { ReactNode } from "react";
 
@@ -16,12 +19,13 @@ export function DesktopHeader({
   cartCount = 0,
   cartSlot,
 }: DesktopHeaderProps) {
+  const pathname = usePathname();
   return (
     <nav
       aria-label="Điều hướng chính"
-      className="mx-auto hidden h-[5.25rem] w-full max-w-[90rem] items-center gap-7 px-10 lg:flex xl:px-16"
+      className="shell hidden h-[4.75rem] items-center gap-4 lg:flex"
     >
-      <div className="min-w-[12.5rem] flex-1">
+      <div className="shrink-0 xl:flex-1">
         <BrandLogo />
       </div>
 
@@ -30,7 +34,8 @@ export function DesktopHeader({
           <li key={item.href}>
             <Link
               href={item.href}
-              className="inline-flex min-h-11 items-center rounded-full px-3 text-sm font-semibold text-[var(--ink-700,#454944)] transition-colors hover:bg-[var(--paper-100,#f3eee4)] hover:text-[var(--forest-950,#102a20)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--clay-500,#b86f45)] xl:px-4"
+              aria-current={pathname === item.href || pathname.startsWith(`${item.href}/`) ? "page" : undefined}
+              className="inline-flex min-h-11 items-center border-b-2 border-transparent px-2 text-sm font-semibold text-ink-700 transition-colors hover:text-forest-950 aria-[current=page]:border-forest-950 aria-[current=page]:text-forest-950 xl:px-3"
             >
               {item.label}
             </Link>
@@ -38,7 +43,7 @@ export function DesktopHeader({
         ))}
       </ul>
 
-      <div className="flex min-w-[12.5rem] flex-1 items-center justify-end gap-1">
+      <div className="ml-auto flex shrink-0 items-center justify-end gap-1">
         <SearchDialog />
         <Link
           href="/login"

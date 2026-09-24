@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, MapPin, PackageCheck } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, PackageCheck, Pause, Play } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Product } from "@/features/products/domain/product.types";
 import type { CoffeeLot } from "@/features/traceability/domain/traceability.types";
@@ -47,14 +47,15 @@ export function TraceabilityCarousel({ products, lots }: TraceabilityCarouselPro
   );
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [autoplay, setAutoplay] = useState(true);
 
   useEffect(() => {
-    if (paused || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (paused || !autoplay || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const timer = window.setInterval(() => {
       setActiveIndex((current) => (current + 1) % slides.length);
     }, AUTOPLAY_INTERVAL);
     return () => window.clearInterval(timer);
-  }, [activeIndex, paused, slides.length]);
+  }, [activeIndex, paused, autoplay, slides.length]);
 
   if (slides.length === 0) return null;
 
@@ -72,16 +73,19 @@ export function TraceabilityCarousel({ products, lots }: TraceabilityCarouselPro
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <p className="eyebrow">Traceability spotlight</p>
-            <h2 className="section-heading mt-4">Mỗi lô là một hành trình có thể mở ra</h2>
+            <h2 className="section-heading mt-4">Theo dấu một lô cà phê.</h2>
             <p className="mt-4 max-w-xl text-sm leading-6 text-ink-700">
               Theo dõi vùng trồng, sơ chế, rang và đóng gói qua từng coffee passport mô phỏng.
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <button type="button" onClick={() => setAutoplay((value) => !value)} className="grid size-11 place-items-center rounded-full border border-forest-950/15 bg-white" aria-label={autoplay ? "Tạm dừng chuyển lô tự động" : "Bật chuyển lô tự động"}>
+              {autoplay ? <Pause size={16} aria-hidden="true" /> : <Play size={16} aria-hidden="true" />}
+            </button>
             <button type="button" onClick={() => move(-1)} className="grid size-11 place-items-center rounded-full border border-forest-950/15 bg-white text-forest-950 transition hover:-translate-x-0.5 hover:border-forest-950/35" aria-label="Xem lô trước">
               <ChevronLeft aria-hidden="true" size={18} />
             </button>
-            <p className="lot-code min-w-16 text-center text-xs font-bold text-ink-500" aria-live="polite">{String(activeIndex + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</p>
+            <p className="lot-code min-w-16 text-center text-xs font-bold text-ink-500">{String(activeIndex + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}</p>
             <button type="button" onClick={() => move(1)} className="grid size-11 place-items-center rounded-full border border-forest-950/15 bg-white text-forest-950 transition hover:translate-x-0.5 hover:border-forest-950/35" aria-label="Xem lô tiếp theo">
               <ChevronRight aria-hidden="true" size={18} />
             </button>
@@ -100,7 +104,7 @@ export function TraceabilityCarousel({ products, lots }: TraceabilityCarouselPro
             if (!event.currentTarget.contains(event.relatedTarget)) setPaused(false);
           }}
         >
-          <article key={lot.lotCode} className="trace-slide-in topo-surface overflow-hidden rounded-[2rem] border border-forest-950/15 bg-mist-50 shadow-[0_28px_80px_rgba(24,50,40,.14)]">
+          <article key={lot.lotCode} className="trace-slide-in overflow-hidden rounded-xl border border-forest-950/15 bg-mist-50 shadow-soft">
             <div className="grid min-h-[34rem] lg:grid-cols-[1.04fr_.96fr]">
               <div className="relative isolate min-h-[25rem] overflow-hidden bg-forest-950 text-white lg:min-h-full">
                 <Image src={visual.src} alt={visual.alt} fill sizes="(max-width: 1023px) 100vw, 52vw" className="-z-20 object-cover" />
@@ -142,11 +146,11 @@ export function TraceabilityCarousel({ products, lots }: TraceabilityCarouselPro
                 </dl>
 
                 <div className="mt-auto">
-                  <ol className="grid grid-cols-6 gap-1" aria-label="Sáu bước truy xuất">
+                  <ol className="grid grid-cols-3 gap-x-2 gap-y-4 sm:grid-cols-6" aria-label="Sáu bước truy xuất">
                     {lot.timeline.map((event, index) => (
                       <li key={event.id} className="min-w-0 text-center">
                         <span className="mx-auto grid size-7 place-items-center rounded-full bg-forest-950 text-[0.58rem] font-extrabold text-honey-500">{index + 1}</span>
-                        <span className="mt-2 hidden truncate text-[0.58rem] font-bold text-ink-500 sm:block">{event.title}</span>
+                        <span className="mt-2 block text-[0.65rem] font-bold text-ink-700">{event.title}</span>
                       </li>
                     ))}
                   </ol>
@@ -164,8 +168,10 @@ export function TraceabilityCarousel({ products, lots }: TraceabilityCarouselPro
             {slides.map((slide, index) => {
               const active = index === activeIndex;
               return (
-                <button key={slide.lot.lotCode} type="button" onClick={() => setActiveIndex(index)} className={`relative h-2 overflow-hidden rounded-full transition-[width,background-color] duration-500 ${active ? "w-16 bg-forest-950/20" : "w-5 bg-forest-950/15 hover:bg-forest-950/30"}`} aria-label={`Xem lô ${slide.lot.lotCode}`} aria-current={active ? "true" : undefined}>
-                  {active && !paused ? <span className="trace-carousel-progress absolute inset-y-0 left-0 bg-forest-950" style={{ animationDuration: `${AUTOPLAY_INTERVAL}ms` }} /> : null}
+                <button key={slide.lot.lotCode} type="button" onClick={() => { setActiveIndex(index); setAutoplay(false); }} className="relative grid h-11 min-w-11 place-items-center" aria-label={`Xem lô ${slide.lot.lotCode}`} aria-current={active ? "true" : undefined}>
+                  <span className={`relative block h-1.5 w-full overflow-hidden rounded-full ${active ? "bg-forest-950/40" : "bg-forest-950/15"}`}>
+                    {active && !paused && autoplay ? <span key={lot.lotCode} className="trace-carousel-progress absolute inset-y-0 left-0 bg-forest-950" style={{ animationDuration: `${AUTOPLAY_INTERVAL}ms` }} /> : null}
+                  </span>
                 </button>
               );
             })}

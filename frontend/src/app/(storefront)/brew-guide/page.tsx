@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Coffee, Droplets, Scale, SlidersHorizontal, Timer } from "lucide-react";
 import { BREW_GUIDE_NOTE, BREW_METHODS } from "@/content/brew-methods";
 
@@ -12,12 +13,18 @@ export const metadata: Metadata = {
 export default function BrewGuidePage() {
   return (
     <main id="main-content">
-      <header className="topo-surface border-b border-basalt-900/10 bg-paper-100 py-16 md:py-24"><div className="shell"><p className="eyebrow">Brew at home</p><h1 className="display-heading mt-5 max-w-5xl">Pha đúng nhịp, không cần đúng một công thức.</h1></div></header>
+      <header className="border-b border-basalt-900/10 bg-paper-100 py-12 md:py-16">
+        <div className="shell grid gap-10 md:grid-cols-2 md:items-center">
+          <div><p className="eyebrow">Brew at home</p><h1 className="display-heading mt-5">Pha đúng nhịp, không cần đúng một công thức.</h1><p className="mt-5 max-w-md text-sm leading-7 text-ink-700">Từ một chiếc phin quen thuộc đến tách pour-over đầu tiên. Chọn dụng cụ của bạn và bắt đầu thật đơn giản.</p></div>
+          <figure><div className="relative aspect-[4/3] overflow-hidden rounded-xl"><Image src="/images/brewing/phin.webp" alt="Minh họa phin Việt Nam trên ly cà phê sữa" fill priority sizes="(max-width: 767px) 100vw, 50vw" className="editorial-photo object-cover" /></div><figcaption className="mt-2 text-xs text-ink-500">Ảnh minh họa được tạo bằng AI.</figcaption></figure>
+        </div>
+      </header>
       <section className="section-space shell">
+        <nav aria-label="Chọn dụng cụ pha" className="mb-8 flex flex-wrap gap-2">{BREW_METHODS.map((guide) => <a key={guide.id} href={`#${guide.id}`} className="button-secondary">{guide.name}</a>)}</nav>
         <p className="mb-10 rounded-2xl border border-honey-500/25 bg-honey-500/10 p-5 text-sm leading-6 text-roast-700"><strong>Lưu ý:</strong> {BREW_GUIDE_NOTE}</p>
         <div className="grid gap-5 lg:grid-cols-2">
           {BREW_METHODS.map((guide, index) => (
-            <article id={guide.id} key={guide.id} className="topo-surface rounded-[1.6rem] border border-basalt-900/10 bg-white/70 p-6 shadow-[0_14px_45px_rgba(24,26,24,.06)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_24px_65px_rgba(24,26,24,.11)] md:p-8">
+            <article id={guide.id} key={guide.id} className="rounded-xl border border-basalt-900/10 bg-white/70 p-6 md:p-8">
               <div className="flex items-center justify-between"><span className="flex size-12 items-center justify-center rounded-full bg-forest-950 text-white"><Coffee aria-hidden="true" size={21} /></span><span className="lot-code text-sm text-ink-500">0{index + 1}</span></div>
               <h2 className="mt-7 font-display text-4xl font-semibold tracking-[-0.045em]">{guide.name}</h2><p className="mt-2 text-ink-700">{guide.shortDescription}</p>
               <dl className="mt-7 grid gap-3 sm:grid-cols-2">
@@ -26,6 +33,7 @@ export default function BrewGuidePage() {
                 <div className="rounded-xl bg-paper-100 p-4"><dt className="flex items-center gap-2 text-xs font-bold text-ink-500"><SlidersHorizontal aria-hidden="true" size={14} /> Kiểu xay</dt><dd className="mt-2 font-semibold">{guide.grind}</dd></div>
                 <div className="rounded-xl bg-paper-100 p-4"><dt className="flex items-center gap-2 text-xs font-bold text-ink-500"><Timer aria-hidden="true" size={14} /> Thời gian</dt><dd className="mt-2 font-semibold">{guide.time}</dd></div>
               </dl>
+              <Link href={guide.id === "drip-bag" ? "/shop?format=drip-bag" : `/shop?brew=${guide.id}`} className="mt-5 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest-950">Chọn cà phê cho {guide.name} <ArrowRight size={16} aria-hidden="true" /></Link>
               <div className="mt-6 border-t border-basalt-900/10 pt-5"><p className="text-xs font-bold uppercase tracking-[0.11em] text-ink-500">Cà phê gợi ý</p><p className="mt-2 font-display text-xl font-semibold text-forest-950">{guide.recommendations.join(" · ")}</p></div>
             </article>
           ))}

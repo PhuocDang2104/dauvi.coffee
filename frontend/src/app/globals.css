@@ -80,17 +80,8 @@ body {
   color: #102a20;
 }
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-button,
-input,
-select,
-textarea {
-  font: inherit;
-}
+/* Link and form resets are supplied by Tailwind's base layer. Do not repeat
+   them unlayered: that would override text/color/weight utility classes. */
 
 button,
 [role="button"],
@@ -131,12 +122,12 @@ a {
 }
 
 .section-space {
-  padding-block: clamp(4.5rem, 8vw, 8rem);
+  padding-block: clamp(3.5rem, 6vw, 6rem);
 }
 
 .display-heading {
   font-family: var(--font-fraunces), Georgia, serif;
-  font-size: clamp(2.75rem, 6vw, 5rem);
+  font-size: clamp(2.6rem, 5vw, 4.3rem);
   font-weight: 520;
   letter-spacing: -0.045em;
   line-height: 0.98;
@@ -145,7 +136,7 @@ a {
 
 .section-heading {
   font-family: var(--font-fraunces), Georgia, serif;
-  font-size: clamp(2rem, 4vw, 3.5rem);
+  font-size: clamp(2rem, 3.6vw, 3.15rem);
   font-weight: 520;
   letter-spacing: -0.035em;
   line-height: 1.08;
@@ -415,18 +406,39 @@ a {
 
 @media (min-width: 1024px) {
   html {
-    font-size: 14px;
+    font-size: 16px;
   }
+
+  .shell { max-width: 1120px; }
+  .wide-shell { max-width: 1240px; }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   body {
-    padding-bottom: 4.8rem;
+    padding-bottom: calc(4.8rem + env(safe-area-inset-bottom));
   }
 
   body:has([data-checkout-page]) {
     padding-bottom: 0;
   }
+}
+
+/* Keep controls usable without scaling the document or its hit areas. */
+button, [role="button"] { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+input, select, textarea { scroll-margin-top: 9rem; }
+main [id] { scroll-margin-top: 9rem; }
+
+.home-hero, .home-hero-inner { min-height: min(690px, calc(100svh - 108px)); }
+.product-card { border-radius: .75rem; box-shadow: none; }
+.product-card:hover { transform: translateY(-3px); box-shadow: 0 16px 32px rgb(24 26 24 / .07); }
+.product-card-image { border-bottom: 1px solid rgb(42 33 29 / .08); }
+.editorial-photo { filter: saturate(.85); }
+
+@media (max-width: 639px) {
+  .shell, .wide-shell { width: calc(100% - 2rem); }
+  .home-hero, .home-hero-inner { min-height: 610px; }
+  input, select, textarea { font-size: 16px !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {

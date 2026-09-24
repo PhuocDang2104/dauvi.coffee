@@ -5,7 +5,8 @@ export interface BrewMethodGuide {
     | "aeropress"
     | "moka-pot"
     | "french-press"
-    | "cold-brew";
+    | "cold-brew"
+    | "drip-bag";
   name: string;
   shortDescription: string;
   dose: string;
@@ -16,6 +17,16 @@ export interface BrewMethodGuide {
 }
 
 export const BREW_METHODS: BrewMethodGuide[] = [
+  {
+    id: "drip-bag",
+    name: "Drip bag",
+    shortDescription: "Gọn cho một tách, không cần dụng cụ riêng.",
+    dose: "1 gói × 12 g",
+    water: "180–200 ml nước",
+    grind: "Đã xay và định lượng",
+    time: "2–3 phút",
+    recommendations: ["Catimor"],
+  },
   {
     id: "phin",
     name: "Phin Việt Nam",
@@ -82,7 +93,7 @@ export const BREW_GUIDE_NOTE =
   "Các thông số là điểm khởi đầu gợi ý, không phải quy chuẩn duy nhất. Hãy điều chỉnh độ xay, lượng nước và thời gian theo dụng cụ cùng khẩu vị của bạn.";
 
 export const HOME_BREW_PATHWAYS = [
-  BREW_METHODS[0],
+  BREW_METHODS.find((method) => method.id === "phin")!,
   {
     id: "pour-over-aeropress",
     name: "Pour-over / AeroPress",

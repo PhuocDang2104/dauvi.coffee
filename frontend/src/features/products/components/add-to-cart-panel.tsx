@@ -52,6 +52,7 @@ export function AddToCartPanel({ product }: { product: Product }) {
   };
 
   const handleAdd = () => {
+    if (!variant.inStock) return;
     addItem({
       productId: product.id,
       productSlug: product.slug,
@@ -158,7 +159,7 @@ export function AddToCartPanel({ product }: { product: Product }) {
       <div className="fixed inset-x-0 bottom-[4.65rem] z-30 border-t border-basalt-900/10 bg-mist-50/95 p-3 backdrop-blur md:hidden">
         <div className="mx-auto flex max-w-lg items-center gap-3">
           <div className="min-w-0 flex-1"><p className="truncate text-xs font-bold text-ink-700">{variantLabel(variant)}</p><p className="text-sm font-extrabold text-forest-950">{formatCurrency(variant.price.amount * quantity)}</p></div>
-          <button type="button" onClick={handleAdd} className="button-primary shrink-0" aria-label={`Thêm ${product.shortName} vào giỏ`}>
+          <button type="button" disabled={!variant.inStock} onClick={handleAdd} className="button-primary shrink-0 disabled:opacity-50" aria-label={`Thêm ${product.shortName} vào giỏ`}>
             {added ? <Check aria-hidden="true" size={18} /> : <ShoppingBag aria-hidden="true" size={18} />} {added ? "Đã thêm" : "Thêm vào giỏ"}
           </button>
         </div>

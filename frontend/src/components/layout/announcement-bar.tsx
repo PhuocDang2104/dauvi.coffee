@@ -38,8 +38,9 @@ export function AnnouncementBar() {
   if (!visible) return null;
 
   return (
-    <div className="relative bg-[var(--forest-950,#102a20)] px-14 py-2 text-center text-xs font-semibold leading-5 text-white sm:px-16 sm:text-sm">
-      <p>{SITE_CONFIG.announcement}</p>
+    <div className="relative flex min-h-11 items-center justify-center bg-forest-950 py-2 pl-4 pr-12 text-center text-xs font-semibold leading-5 text-white sm:px-16">
+      <p className="hidden sm:block">{SITE_CONFIG.announcement}</p>
+      <p className="sm:hidden">DẤU VỊ · Từ cao nguyên đến tách cà phê</p>
       <button
         type="button"
         onClick={dismiss}

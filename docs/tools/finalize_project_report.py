@@ -727,7 +727,8 @@ def write_chapter_four(writer: Writer) -> None:
         "docker pull pgvector/pgvector:0.8.6-pg17-bookworm\n"
         "docker build --network=host --pull \\\n  --build-arg EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 \\\n  -f docker/backend.Dockerfile -t dau-vi-backend:latest .\n"
         "docker compose --env-file docker/.env \\\n  -f docker/compose.yml -f docker/compose.caddy.yml \\\n  up -d --no-build database\n"
-        "docker compose --env-file docker/.env \\\n  -f docker/compose.yml -f docker/compose.caddy.yml \\\n  up -d --no-build --force-recreate backend"
+        "docker compose --env-file docker/.env \\\n  -f docker/compose.yml -f docker/compose.caddy.yml \\\n  up -d --no-build --force-recreate --wait --wait-timeout 240 backend\n"
+        "docker exec minute_caddy caddy reload --config /etc/caddy/Caddyfile"
     )
     writer.paragraph(
         "Tùy chọn --network=host được dùng khi Docker daemon trên cloud gặp lỗi phân giải DNS "
@@ -839,7 +840,9 @@ def write_chapter_four(writer: Writer) -> None:
         "cd /opt/dauvi.coffee\n"
         "git pull --ff-only\n"
         "docker build --network=host --pull \\\n  --build-arg EMBEDDING_MODEL=sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2 \\\n  -f docker/backend.Dockerfile -t dau-vi-backend:latest .\n"
-        "docker compose --env-file docker/.env \\\n  -f docker/compose.yml -f docker/compose.caddy.yml \\\n  up -d --no-build --force-recreate backend\n"
+        "docker compose --env-file docker/.env \\\n  -f docker/compose.yml -f docker/compose.caddy.yml \\\n  up -d --no-build --force-recreate --wait --wait-timeout 240 backend\n"
+        "docker exec minute_caddy caddy reload --config /etc/caddy/Caddyfile\n"
+        "curl --max-time 15 -fsS http://127.0.0.1:18081/health/rag; echo\n"
         "curl --max-time 15 -fsS https://dauvi-api.duckdns.org/health/rag; echo\n"
         "docker image prune -f"
     )

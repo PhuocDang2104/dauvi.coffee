@@ -92,7 +92,7 @@ export function MobileHeader({ cartCount = 0, cartSlot }: MobileHeaderProps) {
         onClick={closeOnBackdrop}
         className="fixed inset-0 m-0 h-dvh max-h-none w-full max-w-none bg-black/30 p-0 backdrop:bg-black/30"
       >
-        <div className="flex h-full w-[min(88vw,24rem)] flex-col bg-[var(--mist-50,#faf8f2)] px-6 pb-8 pt-5 shadow-2xl">
+        <div className="flex h-full w-[min(88vw,24rem)] flex-col overflow-y-auto overscroll-contain bg-[var(--mist-50,#faf8f2)] px-6 pb-8 pt-5 shadow-2xl">
           <div className="flex items-center justify-between">
             <BrandLogo href={null} />
             <button

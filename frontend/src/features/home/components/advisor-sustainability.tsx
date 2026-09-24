@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, CheckCircle2, Clock3, Coffee, Database, FileText, MessageCircleMore, ShieldCheck } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight, CheckCircle2, Clock3, Database, FileText, MessageCircleMore, ShieldCheck } from "lucide-react";
 
 export function AdvisorCallout() {
   const prompts = [
@@ -14,7 +15,8 @@ export function AdvisorCallout() {
       <div className="shell grid gap-12 lg:grid-cols-[.9fr_1.1fr] lg:items-center">
         <div>
           <p className="eyebrow !text-honey-500">Coffee Advisor</p>
-          <h2 className="section-heading mt-4">Không cần biết hết thuật ngữ để chọn đúng cà phê</h2>
+          <h2 className="section-heading mt-4">Gu của bạn.<br />Gợi ý của DẤU VỊ.</h2>
+          <p className="mt-5 max-w-md text-sm leading-7 text-sand-200">Đậm cho buổi sáng, thanh cho buổi chiều? Bắt đầu từ cách bạn thích uống, chúng mình giúp bạn chọn.</p>
           <Link href="/advisor" className="button-primary mt-8 !bg-mist-50 !text-forest-950">
             Bắt đầu tư vấn <ArrowRight aria-hidden="true" size={17} />
           </Link>
@@ -26,7 +28,7 @@ export function AdvisorCallout() {
           </div>
           <p className="mt-6 font-display text-2xl font-semibold">Bạn đang tìm một tách cà phê như thế nào?</p>
           <div className="mt-5 grid gap-2 sm:grid-cols-2">
-            {prompts.map((prompt) => <div key={prompt} className="flex min-h-12 items-center rounded-xl border border-white/15 bg-white/5 px-4 text-sm font-semibold">{prompt}</div>)}
+            {prompts.map((prompt) => <Link href="/advisor" key={prompt} className="flex min-h-12 items-center justify-between gap-3 rounded-lg border border-white/20 px-4 text-sm font-semibold transition hover:bg-white/10">{prompt}<ArrowRight size={14} aria-hidden="true" /></Link>)}
           </div>
         </div>
       </div>
@@ -50,7 +52,7 @@ export function HonestSustainability() {
       </div>
       <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {levels.map(({ icon: Icon, label, copy, tone }) => (
-          <article key={label} className="rounded-[1.35rem] border border-basalt-900/10 bg-white/70 p-5 shadow-[0_12px_40px_rgba(24,26,24,.05)] transition duration-300 hover:-translate-y-1 hover:shadow-soft">
+          <article key={label} className="border-t border-basalt-900/20 py-6 pr-4">
             <span className={`flex size-10 items-center justify-center rounded-full ${tone}`}><Icon aria-hidden="true" size={18} /></span>
             <h3 className="mt-5 font-display text-2xl font-semibold tracking-[-0.03em]">{label}</h3>
             <p className="mt-3 text-sm leading-6 text-ink-700">{copy}</p>
@@ -58,7 +60,7 @@ export function HonestSustainability() {
         ))}
       </div>
       <p className="mt-5 rounded-2xl border border-clay-500/20 bg-clay-500/5 p-5 text-sm leading-6 text-roast-700">
-        Không sử dụng các claim “organic”, “water-saving”, “carbon neutral” hoặc “deforestation-free” nếu hồ sơ sản phẩm chưa có bằng chứng tương ứng.
+        Hồ sơ lô hiện là dữ liệu mô phỏng. Nhãn bằng chứng giúp bạn phân biệt thông tin tham khảo với thông tin đã được xác minh.
       </p>
     </section>
   );
@@ -66,9 +68,9 @@ export function HonestSustainability() {
 
 export function BrewAtHome() {
   const pathways = [
-    { title: "Phin Việt Nam", grind: "Vừa–mịn", dose: "20 g", water: "80–100 ml", time: "4–6 phút", products: "TRS1 · TR4 · Xanh Lùn" },
-    { title: "Pour-over / AeroPress", grind: "Vừa", dose: "15–17 g", water: "220–240 ml", time: "2–3 phút", products: "Catimor · Bourbon · TR9" },
-    { title: "Drip bag", grind: "Đã định lượng", dose: "12 g", water: "180–200 ml", time: "2–3 phút", products: "Catimor Đà Lạt" },
+    { id: "phin", title: "Phin Việt Nam", grind: "Vừa–mịn", dose: "20 g", water: "80–100 ml", time: "4–6 phút", products: "TRS1 · TR4 · Xanh Lùn" },
+    { id: "pour-over", title: "Pour-over", grind: "Vừa", dose: "15 g", water: "240 ml", time: "2:30–3:00", products: "Catimor · Bourbon" },
+    { id: "drip-bag", title: "Drip bag", grind: "Đã định lượng", dose: "12 g", water: "180–200 ml", time: "2–3 phút", products: "Catimor Đà Lạt" },
   ];
 
   return (
@@ -80,9 +82,12 @@ export function BrewAtHome() {
         </div>
         <div className="mt-10 grid gap-4 lg:grid-cols-3">
           {pathways.map((pathway, index) => (
-            <article key={pathway.title} className="rounded-[1.5rem] border border-basalt-900/10 bg-mist-50 p-6 shadow-[0_12px_40px_rgba(24,26,24,.05)] transition duration-300 hover:-translate-y-1 hover:shadow-soft md:p-7">
-              <div className="flex items-center justify-between"><span className="flex size-11 items-center justify-center rounded-full bg-forest-950 text-white"><Coffee aria-hidden="true" size={20} /></span><span className="lot-code text-xs text-ink-500">0{index + 1}</span></div>
-              <h3 className="card-heading mt-6">{pathway.title}</h3>
+            <article key={pathway.title} className="group overflow-hidden rounded-xl border border-basalt-900/10 bg-mist-50">
+              <Link href={`/brew-guide#${pathway.id}`} className="relative block aspect-[3/2] overflow-hidden" aria-label={`Hướng dẫn pha ${pathway.title}`}>
+                <Image src={`/images/brewing/${pathway.id}.webp`} alt={`Minh họa cách pha ${pathway.title}`} fill sizes="(max-width: 1023px) 90vw, 33vw" className="editorial-photo object-cover transition-transform duration-700 group-hover:scale-[1.035]" />
+              </Link>
+              <div className="p-6">
+              <div className="flex items-center justify-between gap-3"><h3 className="card-heading">{pathway.title}</h3><span className="lot-code text-xs text-ink-500">0{index + 1}</span></div>
               <dl className="mt-5 grid grid-cols-2 gap-3 text-xs">
                 <div><dt className="font-bold text-ink-500">Kiểu xay</dt><dd className="mt-1 font-semibold">{pathway.grind}</dd></div>
                 <div><dt className="font-bold text-ink-500">Liều lượng</dt><dd className="mt-1 font-semibold">{pathway.dose}</dd></div>
@@ -90,9 +95,12 @@ export function BrewAtHome() {
                 <div><dt className="flex items-center gap-1 font-bold text-ink-500"><Clock3 aria-hidden="true" size={12} /> Thời gian</dt><dd className="mt-1 font-semibold">{pathway.time}</dd></div>
               </dl>
               <p className="mt-5 border-t border-basalt-900/10 pt-4 text-xs leading-5 text-ink-700"><strong>Phù hợp:</strong> {pathway.products}</p>
+              <Link href={`/brew-guide#${pathway.id}`} className="mt-3 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-forest-950">Cách pha <ArrowRight size={16} aria-hidden="true" /></Link>
+              </div>
             </article>
           ))}
         </div>
+        <p className="mt-4 text-xs text-ink-500">Ảnh minh họa pha chế được tạo bằng AI.</p>
       </div>
     </section>
   );

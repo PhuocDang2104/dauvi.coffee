@@ -22,7 +22,7 @@ interface HomePathway {
 const HOME_PATHWAYS: HomePathway[] = [
   {
     title: "Chọn theo gu",
-    description: "Trả lời 3 câu hỏi, khám phá hương vị dành riêng cho bạn.",
+    description: "Lọc theo vị, cách pha và mức giá bạn muốn.",
     href: "/shop",
     image: "/images/home/homecard-1.png",
     icon: SlidersHorizontal,
@@ -30,7 +30,7 @@ const HOME_PATHWAYS: HomePathway[] = [
   },
   {
     title: "Coffee Advisor",
-    description: "Đội ngũ chuyên gia đồng hành chọn cà phê phù hợp với bạn.",
+    description: "Sáu câu hỏi ngắn để tìm gói cà phê hợp gu.",
     href: "/advisor",
     image: "/images/home/homecard-2.png",
     icon: MessageCircleMore,
@@ -45,20 +45,20 @@ const HOME_PATHWAYS: HomePathway[] = [
     details: ["5 vùng cao nguyên", "Bản đồ tương tác"],
   },
   {
-    title: "Best sellers",
-    description: "Những dòng cà phê được yêu thích nhất của DẤU VỊ.",
+    title: "Gợi ý từ DẤU VỊ",
+    description: "Khám phá sáu dòng cà phê trong bộ sưu tập.",
     href: "/shop?sort=featured",
     image: "/images/home/homecard-4.png",
     icon: BadgeCheck,
-    details: ["Được chọn nhiều", "Thêm nhanh"],
+    details: ["Robusta & Arabica", "Từ 99.000 ₫"],
   },
 ];
 
 export function HomeHero() {
   return (
-    <section className="relative isolate min-h-[calc(100svh-7rem)] overflow-hidden border-b border-basalt-900/10 bg-paper-100">
+    <section className="home-hero relative isolate overflow-hidden border-b border-basalt-900/10 bg-paper-100">
       <Image
-        src="/images/home/dauvi-homebanner.png"
+        src="/images/home/dauvi-homebanner-editorial.webp"
         alt="Bản đồ địa hình Việt Nam giữa hoa và quả cà phê"
         fill
         priority
@@ -70,10 +70,10 @@ export function HomeHero() {
         aria-hidden="true"
       />
 
-      <div className="shell flex min-h-[calc(100svh-7rem)] items-center py-16 lg:py-20">
+      <div className="home-hero-inner shell flex items-center py-16 lg:py-20">
         <div className="hero-copy-in relative z-10 max-w-[41rem]">
           <p className="eyebrow">Vietnam Traceable Coffee Collection</p>
-          <h1 className="mt-6 max-w-[39rem] font-display text-[clamp(3rem,5.2vw,4.75rem)] font-medium leading-[.98] tracking-[-.045em] text-balance">Cà phê Việt Nam, được kể đến từng lô.</h1>
+          <h1 className="mt-6 max-w-[35rem] font-display text-[clamp(2.85rem,4.8vw,4.3rem)] font-medium leading-[1.04] tracking-[-.045em] text-balance">Cà phê Việt Nam, được kể đến từng lô.</h1>
           <p className="mt-6 max-w-xl text-base leading-7 text-ink-700 md:text-lg md:leading-8">
             Từ cao nguyên Việt Nam đến tách cà phê tại nhà — chọn theo vùng, vị và hành trình truy xuất.
           </p>
@@ -82,7 +82,7 @@ export function HomeHero() {
               Khám phá bộ sưu tập <ArrowRight aria-hidden="true" size={17} />
             </Link>
             <Link href="/advisor" className="button-secondary bg-mist-50/45 backdrop-blur-sm">
-              Để Coffee Advisor chọn giúp
+              Tìm cà phê hợp gu
             </Link>
           </div>
         </div>
@@ -101,7 +101,6 @@ export function HomeHero() {
 export function CollectionOverview() {
   return (
     <section id="collection-overview" className="relative scroll-mt-40 overflow-hidden border-y border-white/10 bg-forest-950 py-16 lg:scroll-mt-28 lg:py-20">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_12%_12%,rgba(105,157,163,.24),transparent_31%),radial-gradient(circle_at_86%_88%,rgba(199,150,72,.11),transparent_28%)]" aria-hidden="true" />
       <div className="pointer-events-none absolute inset-0 bg-[url('/patterns/contour-lines.svg')] bg-cover bg-center opacity-[.075] mix-blend-screen" aria-hidden="true" />
       <div className="pointer-events-none absolute left-[8%] top-8 h-px w-[42%] bg-gradient-to-r from-transparent via-white/20 to-transparent" aria-hidden="true" />
       <div className="shell relative">
@@ -112,7 +111,7 @@ export function CollectionOverview() {
               key={title}
               href={href}
               style={{ animationDelay: `${index * 5}s` }}
-              className="home-pathway-card group relative isolate flex min-h-[16rem] overflow-hidden rounded-[1.45rem] border border-sky-950/10 p-6 shadow-[0_16px_42px_rgba(29,62,65,.12)] transition-[flex,transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,.8,.25,1)] hover:-translate-y-1.5 hover:border-forest-700/35 hover:shadow-[0_30px_70px_rgba(28,66,70,.2)] focus-visible:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-500 focus-visible:ring-offset-2 xl:min-w-0 xl:flex-1 xl:basis-0 xl:hover:flex-[1.65] xl:focus-visible:flex-[1.65]"
+              className="home-pathway-card group relative isolate flex min-h-[18rem] overflow-hidden rounded-xl border border-white/15 p-6 transition-[flex,transform,box-shadow,border-color] duration-500 ease-[cubic-bezier(.22,.8,.25,1)] hover:-translate-y-1.5 hover:shadow-xl focus-visible:-translate-y-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-honey-500 focus-visible:ring-offset-2 xl:min-w-0 xl:flex-1 xl:basis-0 xl:hover:flex-[1.65] xl:focus-visible:flex-[1.65]"
             >
             <Image
               src={image}

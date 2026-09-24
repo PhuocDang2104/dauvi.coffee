@@ -103,7 +103,10 @@ docker compose --env-file docker/.env \
   up -d --no-build database
 docker compose --env-file docker/.env \
   -f docker/compose.yml -f docker/compose.caddy.yml \
-  up -d --no-build --force-recreate backend
+  up -d --no-build --force-recreate --wait --wait-timeout 240 backend
+
+# Backend đã healthy mới reload Caddy để cập nhật IP container vừa recreate.
+docker exec minute_caddy caddy reload --config /etc/caddy/Caddyfile
 ```
 
 Backend tự chạy Alembic, bật extension `vector`, tạo HNSW index và seed 8 tài liệu/24
@@ -197,7 +200,9 @@ docker build --network=host --pull \
   -f docker/backend.Dockerfile -t dau-vi-backend:latest .
 docker compose --env-file docker/.env \
   -f docker/compose.yml -f docker/compose.caddy.yml \
-  up -d --no-build --force-recreate backend
+  up -d --no-build --force-recreate --wait --wait-timeout 240 backend
+docker exec minute_caddy caddy reload --config /etc/caddy/Caddyfile
 curl --max-time 15 -fsS http://127.0.0.1:18081/health/rag; echo
+curl --max-time 15 -fsS https://dauvi-api.duckdns.org/health/rag; echo
 docker image prune -f
 ```

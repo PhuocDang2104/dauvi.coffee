@@ -16,7 +16,7 @@ export function SiteFooter() {
           aria-hidden="true"
           className="pointer-events-none absolute inset-y-0 right-0 w-1/2 bg-[url('/patterns/contour-lines.svg')] bg-cover bg-left opacity-25"
         />
-        <div className="relative mx-auto grid w-full max-w-7xl gap-8 px-6 py-14 md:grid-cols-2 md:items-end md:px-10 lg:px-16 lg:py-20">
+        <div className="shell relative grid gap-8 py-14 md:grid-cols-2 md:items-end lg:py-16">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-[0.22em] text-[var(--clay-500,#b86f45)]">
               {HOME_CONTENT.newsletter.eyebrow}
@@ -33,7 +33,7 @@ export function SiteFooter() {
       </section>
 
       <div className="bg-[var(--forest-950,#102a20)] text-white">
-        <div className="mx-auto w-full max-w-7xl px-6 py-14 md:px-10 lg:px-16 lg:py-20">
+        <div className="shell py-14 lg:py-16">
           <div className="grid gap-12 lg:grid-cols-[1.35fr_2fr]">
             <div>
               <BrandLogo tone="light" />
@@ -56,7 +56,7 @@ export function SiteFooter() {
             <div className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-3">
               {FOOTER_NAVIGATION.map((group) => (
                 <nav key={group.title} aria-label={group.title}>
-                  <h2 className="text-xs font-extrabold uppercase tracking-[0.18em] text-white/45">
+                  <h2 className="text-xs font-extrabold uppercase tracking-[0.18em] text-white/75">
                     {group.title}
                   </h2>
                   <ul className="mt-4 space-y-1">

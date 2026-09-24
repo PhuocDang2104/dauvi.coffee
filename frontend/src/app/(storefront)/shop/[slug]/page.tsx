@@ -82,9 +82,9 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
       <section className="shell grid gap-10 pb-16 lg:grid-cols-[1.18fr_.82fr] lg:gap-14 lg:pb-24">
         <ProductDetailGallery product={product} />
-        <div className="lg:sticky lg:top-32 lg:self-start">
+        <div className="lg:self-start">
           <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.12em] text-forest-600"><MapPin aria-hidden="true" size={15} /> {product.regionLabel}</div>
-          <h1 className="mt-4 font-display text-[clamp(2.5rem,4.5vw,4.4rem)] font-semibold leading-[1.02] tracking-[-0.055em]">{product.displayName}</h1>
+          <h1 className="mt-4 font-display text-[clamp(2.2rem,3.6vw,3.3rem)] font-medium leading-[1.08] tracking-[-0.04em]">{product.displayName}</h1>
           <p className="mt-5 text-lg leading-8 text-ink-700">{product.proposition}</p>
           <div className="mt-5 flex flex-wrap gap-2">
             {product.flavor.notes.map((note) => <span key={note} className="rounded-full bg-paper-100 px-3 py-1.5 text-xs font-bold text-roast-700">{note}</span>)}
