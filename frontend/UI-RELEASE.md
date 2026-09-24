@@ -33,6 +33,14 @@ pnpm start
 
 Ở terminal thứ hai: `pnpm test:e2e`. Rà 17 route tại 375/768/1280/1440 px bằng `node scripts/visual-review.mjs`; ảnh và kết quả nằm trong `playwright-report/visual-review/` (không commit). Chạy trên mock khi kiểm thử các tác vụ ghi dữ liệu, không tạo đơn/tài khoản thử trên production.
 
+## Kết quả kiểm tra local
+
+- `pnpm lint`, `pnpm typecheck`, `pnpm build`: thành công.
+- `pnpm test`: 24 test qua (8 file); giới hạn 2 worker để tránh quá tải tiến trình trên máy local.
+- `pnpm test:e2e`: 18 test qua trên production build, dữ liệu mock.
+- Visual review: 17 route × 4 viewport (375, 768, 1280, 1440 px), HTTP 200, không phát hiện lỗi console, ảnh hỏng hoặc overflow ngang.
+- Đã mở website production trước khi chỉnh; không tạo tài khoản/đơn hàng trên production. Kết quả local không thay thế kiểm thử API Groq/auth trên cloud.
+
 ## Triển khai bản UI này
 
 Chỉ frontend thay đổi; **không cần build lại backend, PostgreSQL hoặc Caddy**. Push lên nhánh `main`, Vercel triển khai qua Git integration nếu đã bật. Giữ nguyên các biến API/auth đang hoạt động; đợt UI này không thêm biến môi trường.
